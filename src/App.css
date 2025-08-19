@@ -1,0 +1,20 @@
+/* Reset básico */
+html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; }
+body { transition: background-color 0.3s ease-in-out; }
+
+/* Estilos para Markdown */
+.message.bot .MuiPaper-root > * { margin-top: 0; margin-bottom: 0.8em; }
+.message.bot .MuiPaper-root > *:last-child { margin-bottom: 0; }
+.message.bot .MuiPaper-root p { line-height: 1.6; }
+.message.bot .MuiPaper-root h1, .message.bot .MuiPaper-root h2, .message.bot .MuiPaper-root h3 { margin-top: 1em; margin-bottom: 0.5em; font-weight: 600; }
+.message.bot .MuiPaper-root ul, .message.bot .MuiPaper-root ol { padding-left: 24px; }
+.message.bot .MuiPaper-root code { background-color: rgba(0, 0, 0, 0.08); padding: 0.2em 0.4em; border-radius: 6px; }
+.message.bot .MuiPaper-root pre { background-color: rgba(0, 0, 0, 0.08); padding: 16px; overflow: auto; border-radius: 6px; }
+.message.bot .MuiPaper-root pre code { background-color: transparent; padding: 0; }
+.message.bot .MuiPaper-root table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.message.bot .MuiPaper-root th, .message.bot .MuiPaper-root td { border: 1px solid rgba(0, 0, 0, 0.2); padding: 8px 12px; }
+
+/* Estilos Markdown para Modo Oscuro */
+body.dark-mode .message.bot .MuiPaper-root code { background-color: rgba(255, 255, 255, 0.15); }
+body.dark-mode .message.bot .MuiPaper-root pre { background-color: rgba(0, 0, 0, 0.3); }
+body.dark-mode .message.bot .MuiPaper-root th, body.dark-mode .message.bot .MuiPaper-root td { border-color: rgba(255, 255, 255, 0.3); }
