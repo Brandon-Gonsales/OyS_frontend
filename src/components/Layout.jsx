@@ -14,16 +14,16 @@ function Layout({ allChats, handleNewChat, handleDeleteChat, darkMode, toggleDar
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>Modelo de Asistencia OyS</Typography>
           <Typography sx={{ mr: 2 }}>Hola, {user?.name}</Typography>
-          {/* Botón de Modo Oscuro/Claro, reintegrado y funcional */}
+          
           <Button color="inherit" onClick={toggleDarkMode}>{darkMode ? 'Modo Claro' : 'Modo Oscuro'}</Button>
           <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>Salir</Button>
         </Toolbar>
-      </AppBar>
-      <Sidebar allChats={allChats} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
+      </AppBar> */}
+      <Sidebar allChats={allChats} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} toggleDarkMode={toggleDarkMode} darkMode={darkMode}/>
       <Box component="main" sx={{ flexGrow: 1, p: 3, width: {sm: 'calc(100% - 240px)'} }}>
         <Toolbar />
         <Outlet />
