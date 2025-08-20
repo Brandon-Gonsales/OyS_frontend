@@ -4,7 +4,7 @@ import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
 import apiClient from '../api/axios';
 
-// Componentes de notificación personalizados
+// Componentes de notificación personalizados hola 
 const CircularProgress = () => (
   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
 );
