@@ -81,9 +81,15 @@ function ChatView({ onChatUpdate }) {
       let chatAfterFileUpload = currentChat;
       
       if (file) {
+        if (!currentChat.activeContext) {
+          throw new Error("El contexto activo del chat no está definido. No se puede subir el archivo.");
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('chatId', currentChat._id);
+        formData.append('documentType', currentChat.activeContext);
+        
         const { data: fileResponse } = await apiClient.post('/process-document', formData);
         chatAfterFileUpload = fileResponse.updatedChat;
         setCurrentChat(chatAfterFileUpload);
