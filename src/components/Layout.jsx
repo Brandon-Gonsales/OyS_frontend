@@ -1,19 +1,29 @@
 // --- VERSIÓN APROBADA de frontend/src/components/Layout.jsx ---
 
-import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '../context/AuthContext';
-import Sidebar from './Sidebar';
+import React from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useAuth } from "../context/AuthContext";
+import Sidebar from "./Sidebar";
+import { SidebarChat } from "./SidebarChat";
 
-function Layout({ allChats, handleNewChat, handleDeleteChat, darkMode, toggleDarkMode }) {
+function Layout({
+  allChats,
+  handleNewChat,
+  handleDeleteChat,
+  darkMode,
+  toggleDarkMode,
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const handleLogout = () => { logout(); navigate('/login'); };
-
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+  console.log(allChats);
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>Modelo de Asistencia OyS</Typography>
@@ -23,9 +33,18 @@ function Layout({ allChats, handleNewChat, handleDeleteChat, darkMode, toggleDar
           <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>Salir</Button>
         </Toolbar>
       </AppBar> */}
-      <Sidebar allChats={allChats} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} toggleDarkMode={toggleDarkMode} darkMode={darkMode}/>
-      <Box component="main" sx={{ flexGrow: 1, p: 3, width: {sm: 'calc(100% - 240px)'} }}>
-        <Toolbar />
+      <SidebarChat
+        allChats={allChats}
+        handleNewChat={handleNewChat}
+        handleDeleteChat={handleDeleteChat}
+        toggleDarkMode={toggleDarkMode}
+        darkMode={darkMode}
+      />
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 0, width: { sm: "calc(100% - 240px)" } }}
+      >
+        {/* <Toolbar /> */}
         <Outlet />
       </Box>
     </Box>

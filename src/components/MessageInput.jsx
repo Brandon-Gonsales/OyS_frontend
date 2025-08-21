@@ -1,45 +1,95 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useDropzone } from "react-dropzone";
 
 // Iconos SVG personalizados
 const AttachFileIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+    />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
   </svg>
 );
 
 const PlusIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 4v16m8-8H4"
+    />
   </svg>
 );
 
 const SendIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
   </svg>
 );
 
 const ImageIcon = () => (
-  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+  <svg
+    className="w-8 h-8"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+    />
   </svg>
 );
 
 const DocumentIcon = () => (
-  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  <svg
+    className="w-8 h-8"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
   </svg>
 );
 
 function MessageInput({ onSendMessage, loading }) {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -47,20 +97,22 @@ function MessageInput({ onSendMessage, loading }) {
   const optionsRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const onDrop = useCallback(acceptedFiles => {
+  const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
-      const newFiles = acceptedFiles.map(file => ({
+      const newFiles = acceptedFiles.map((file) => ({
         file,
         id: Math.random().toString(36).substr(2, 9),
-        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+        preview: file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : null,
       }));
-      setFiles(prev => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
     }
   }, []);
 
   useEffect(() => {
     return () => {
-      files.forEach(fileObj => {
+      files.forEach((fileObj) => {
         if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
       });
     };
@@ -72,11 +124,11 @@ function MessageInput({ onSendMessage, loading }) {
         setShowOptions(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,
     noClick: true,
@@ -84,32 +136,32 @@ function MessageInput({ onSendMessage, loading }) {
     onDragEnter: () => setIsDragOver(true),
     onDragLeave: () => setIsDragOver(false),
     onDropAccepted: () => setIsDragOver(false),
-    onDropRejected: () => setIsDragOver(false)
+    onDropRejected: () => setIsDragOver(false),
   });
 
   const handleSend = () => {
     if (!message.trim() && files.length === 0) return;
-    
+
     // Por ahora enviamos solo el primer archivo para mantener compatibilidad
     const firstFile = files.length > 0 ? files[0].file : null;
     onSendMessage(message.trim(), firstFile);
-    
-    setMessage('');
+
+    setMessage("");
     setFiles([]);
-    
+
     // Reset textarea height
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = "auto";
     }
   };
 
   const removeFile = (fileId) => {
-    setFiles(prev => {
-      const fileToRemove = prev.find(f => f.id === fileId);
+    setFiles((prev) => {
+      const fileToRemove = prev.find((f) => f.id === fileId);
       if (fileToRemove?.preview) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
-      return prev.filter(f => f.id !== fileId);
+      return prev.filter((f) => f.id !== fileId);
     });
   };
 
@@ -121,67 +173,70 @@ function MessageInput({ onSendMessage, loading }) {
   const handleFileInputChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length > 0) {
-      const newFiles = selectedFiles.map(file => ({
+      const newFiles = selectedFiles.map((file) => ({
         file,
         id: Math.random().toString(36).substr(2, 9),
-        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+        preview: file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : null,
       }));
-      setFiles(prev => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && !loading) {
+    if (e.key === "Enter" && !e.shiftKey && !loading) {
       e.preventDefault();
       handleSend();
     }
   };
 
   const getFileIcon = (fileType) => {
-    if (fileType.startsWith('image/')) return <ImageIcon />;
+    if (fileType.startsWith("image/")) return <ImageIcon />;
     return <DocumentIcon />;
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height =
+        Math.min(textareaRef.current.scrollHeight, 120) + "px";
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
       {/* Archivos cargados - Estilo Claude */}
       {files.length > 0 && (
         <div className="flex flex-wrap gap-3">
           {files.map((fileObj) => (
-            <div 
-              key={fileObj.id} 
+            <div
+              key={fileObj.id}
               className="relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
             >
               {/* Vista previa del archivo */}
               <div className="w-24 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-900 relative">
                 {fileObj.preview ? (
-                  <img 
-                    src={fileObj.preview} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={fileObj.preview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="text-gray-400 dark:text-gray-500">
                     {getFileIcon(fileObj.file.type)}
                   </div>
                 )}
-                
+
                 {/* Botón de eliminar */}
                 <button
                   onClick={() => removeFile(fileObj.id)}
@@ -190,14 +245,18 @@ function MessageInput({ onSendMessage, loading }) {
                   <CloseIcon />
                 </button>
               </div>
-              
+
               {/* Información del archivo */}
               <div className="p-2 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate" title={fileObj.file.name}>
-                  {fileObj.file.name.length > 15 
-                    ? fileObj.file.name.substring(0, 12) + '...' + fileObj.file.name.split('.').pop()
-                    : fileObj.file.name
-                  }
+                <p
+                  className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate"
+                  title={fileObj.file.name}
+                >
+                  {fileObj.file.name.length > 15
+                    ? fileObj.file.name.substring(0, 12) +
+                      "..." +
+                      fileObj.file.name.split(".").pop()
+                    : fileObj.file.name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {formatFileSize(fileObj.file.size)}
@@ -210,16 +269,16 @@ function MessageInput({ onSendMessage, loading }) {
 
       {/* Input principal con drag & drop */}
       <div className="relative">
-        <div 
+        <div
           {...getRootProps()}
           className={`relative border rounded-2xl transition-all duration-200 ${
             isDragActive || isDragOver
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
-              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
+              : "border-gray-300 dark:border-gray-600 bg-light-bg dark:bg-dark-bg"
           }`}
         >
           <input {...getInputProps()} />
-          
+
           {/* Overlay de drag & drop */}
           {(isDragActive || isDragOver) && (
             <div className="absolute inset-0 bg-blue-500/10 border-2 border-dashed border-blue-500 rounded-2xl flex items-center justify-center z-20">
@@ -241,12 +300,16 @@ function MessageInput({ onSendMessage, loading }) {
                 onClick={() => setShowOptions(!showOptions)}
                 disabled={loading}
                 className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  showOptions 
-                    ? 'bg-light-secondary text-white shadow-md' 
-                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  showOptions
+                    ? "bg-light-secondary text-white shadow-md"
+                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <div className={`transform transition-transform duration-200 ${showOptions ? 'rotate-45' : ''}`}>
+                <div
+                  className={`transform transition-transform duration-200 ${
+                    showOptions ? "rotate-45" : ""
+                  }`}
+                >
                   <PlusIcon />
                 </div>
               </button>
@@ -262,8 +325,12 @@ function MessageInput({ onSendMessage, loading }) {
                       <AttachFileIcon />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Subir archivo</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Arrastra o selecciona</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Subir archivo
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Arrastra o selecciona
+                      </p>
                     </div>
                   </button>
                 </div>
@@ -284,7 +351,7 @@ function MessageInput({ onSendMessage, loading }) {
                 onKeyDown={handleKeyDown}
                 disabled={loading}
                 rows="1"
-                style={{ minHeight: '24px', maxHeight: '120px' }}
+                style={{ minHeight: "24px", maxHeight: "120px" }}
               />
             </div>
 
@@ -294,8 +361,8 @@ function MessageInput({ onSendMessage, loading }) {
               disabled={loading || (!message.trim() && files.length === 0)}
               className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
                 (message.trim() || files.length > 0) && !loading
-                  ? 'bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
               }`}
             >
               {loading ? (

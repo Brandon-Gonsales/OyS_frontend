@@ -22,12 +22,12 @@ module.exports = {
           warning: "#ffc107",
         },
         dark: {
-          bg: "#FFFFFF", // azul clarito
-          bg_h: "#F5F5F5", // azul clarito
-          primary: "#1D2125", // azul principal
-          primary_h: "#1D2125", // azul principal
-          secondary: "#2A3964", // azul oscuro
-          secondary_h: "#2A3964", // azul oscuro
+          bg: "#1A1B1E", // azul clarito
+          bg_h: "#151519", // azul clarito
+          primary: "#FFFFFF", // azul principal
+          primary_h: "#FFFFFF", // azul principal
+          secondary: "#FFFFFF", // azul oscuro
+          secondary_h: "#FFFFFF", // azul oscuro
           border: "#f3f4f6", // azul oscuro
           border_h: "#B0B0B0", // azul oscuro
           accent: "#E47400", // un color suelto (rosa fuerte)
@@ -36,7 +36,8 @@ module.exports = {
           danger: "#dc3545",  // Rojo error
           warning: "#ffc107",
         },
-      },},
+      },
+    },
   },
   plugins: [],
 }

@@ -1,136 +1,84 @@
-import React, { useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
-// Iconos SVG personalizados para reemplazar Material-UI
-const PersonIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-  </svg>
-);
-
-const SmartToyIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-1.5 2.5H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1z"/>
-  </svg>
-);
-
-const ContentCopyIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-  </svg>
-);
-
-const CircularProgress = () => (
-  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
-);
-
-function MessageList({ conversation, loading, onCopy }) {
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useRef, useEffect } from "react";
+export const MessageList = ({ conversation, loading, onCopy }) => {
   const messagesEndRef = useRef(null);
-  
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation, loading]);
+  const SmartToyIcon = () => (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-1.5 2.5H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1z" />
+    </svg>
+  );
 
   return (
-    <div className="flex-grow overflow-y-auto mb-4">
+    <div className="flex flex-col gap-6 text-light-two">
       {conversation.map((msg, index) => {
-        const isUser = msg.sender === 'user';
+        const isUser = msg.sender === "user";
+
         return (
-          <div key={index} className={`flex flex-col mb-4 ${isUser ? 'items-end' : 'items-start'}`}>
-            <div className="flex items-start gap-3 max-w-full">
-              {!isUser && (
-                <div className="flex items-center justify-center text-light-primary">
-                  <SmartToyIcon />
-                </div>
-              )}
-              <div className="max-w-[80%]">
-                {/* <div className={`text-xs text-gray-500 dark:text-gray-400 mb-1 ${isUser ? 'text-right' : 'text-left'}`}>
-                  {isUser ? 'Tú' : 'Asistente AI'}
-                </div> */}
-                <div className={`p-3 rounded-3xl shadow-sm ${
-                  isUser 
-                    ? 'bg-light-secondary text-white rounded-br-md' 
-                    : 'bg-light-bg dark:bg-dark-bg text-gray-900 dark:text-gray-100 rounded-bl-md'
-                }`}>
-                  {msg.sender !== 'user' ? (
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
-                    </div>
+          <div
+            key={index}
+            className={`flex items-start gap-1 sm:gap-3 ${
+              isUser ? "justify-end" : "justify-start"
+            }`}
+          >
+            {/* {!isUser && (
+              <div className="hidden flex-shrink-0 items-center justify-center sm:flex">
+                <SmartToyIcon className="w-8 h-8" />
+              </div>
+            )} */}
+
+            <div className="relative min-w-0">
+              <div
+                className={`relative rounded-xl p-3 md:p-4 ${
+                  isUser
+                    ? "w-fit rounded-tr-none bg-light-secondary dark:bg-dark-secondary"
+                    : "rounded-tl-none"
+                }`}
+              >
+                {/* {isUser ? (
+                  <div className="absolute top-0 -right-3 h-0 w-0 rounded-tr-md border-b-[15px] border-l-[0px] border-t-transparent border-b-transparent border-l-light-two sm:border-l-[15px] dark:border-l-dark-two"></div>
+                ) : (
+                  <div className="absolute top-0 -left-3 h-0 w-0 rounded-tl-md border-r-[0px] border-b-[15px] border-t-transparent border-r-light-one_d border-b-transparent sm:border-r-[15px] dark:border-r-dark-one_d"></div>
+                )} */}
+
+                <div
+                  className={`leading-relaxed ${
+                    isUser
+                      ? "text-light-bg dark:text-dark-bg"
+                      : "text-light-primary dark:text-dark-primary"
+                  }`}
+                >
+                  {isUser ? (
+                    <div className="text-base sm:text-lg">{msg.text}</div>
                   ) : (
-                    <p className="text-sm">{msg.text}</p>
+                    <div>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
                   )}
                 </div>
               </div>
-              {isUser && (
-                <div className="flex items-center justify-center text-light-secondary">
-                  <PersonIcon />
+            </div>
+
+            {/* {isUser && (
+              <div className="hidden flex-shrink-0 items-center justify-center sm:flex">
+                <div className="h-8 w-8 overflow-hidden rounded-full">
+                  <img
+                    src="/images/avatars/panda.webp"
+                    alt="User Avatar"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-              )}
-            </div>
-            <div className="flex items-center mt-1 px-12">
-              {!isUser && !msg.error && (
-                <button
-                  onClick={() => onCopy(msg.text)}
-                  className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded transition-colors"
-                  title="Copiar"
-                >
-                  <ContentCopyIcon />
-                </button>
-              )}
-            </div>
+              </div>
+            )} */}
           </div>
         );
       })}
-      {loading && (
-        <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400">
-          <CircularProgress />
-          <span className="ml-3 text-sm italic">Escribiendo...</span>
-        </div>
-      )}
-      <div ref={messagesEndRef} />
     </div>
   );
-}
-
-export default MessageList;
-// import React, { useRef, useEffect } from 'react';
-// import { Box, Paper, Typography, Avatar, IconButton, Tooltip, CircularProgress, useTheme } from '@mui/material';
-// import PersonIcon from '@mui/icons-material/Person';
-// import SmartToyIcon from '@mui/icons-material/SmartToy';
-// import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-// import ReactMarkdown from 'react-markdown';
-// import remarkGfm from 'remark-gfm';
-
-// function MessageList({ conversation, loading, onCopy }) {
-//   const messagesEndRef = useRef(null);
-//   const theme = useTheme();
-//   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [conversation, loading]);
-//   return (
-//     <Box sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 2, p: 2, flexGrow: 1, overflowY: 'auto', mb: 2, bgcolor: 'background.default' }}>
-//       {conversation.map((msg, index) => {
-//         const isUser = msg.sender === 'user';
-//         return (
-//           <Box key={index} className="message-container" sx={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', mb: 2 }}>
-//             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, maxWidth: '100%' }}>
-//               {!isUser && <Avatar sx={{ bgcolor: 'secondary.main' }}><SmartToyIcon /></Avatar>}
-//               <Box sx={{ maxWidth: '80%' }}>
-//                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: isUser ? 'right' : 'left', mb: 0.5 }}>{isUser ? 'Tú' : 'Asistente AI'}</Typography>
-//                 <Paper elevation={1} className={`message ${isUser ? 'user' : 'bot'}`} sx={{ p: 1.5, borderRadius: '20px', bgcolor: isUser ? 'primary.main' : 'background.paper', color: isUser ? 'primary.contrastText' : 'text.primary', borderBottomLeftRadius: isUser ? '20px' : '5px', borderBottomRightRadius: isUser ? '5px' : '20px' }}>
-//                   {msg.sender !== 'user' ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown> : <Typography variant="body1">{msg.text}</Typography>}
-//                 </Paper>
-//               </Box>
-//               {isUser && <Avatar sx={{ bgcolor: 'primary.main' }}><PersonIcon /></Avatar>}
-//             </Box>
-//             <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, px: '50px' }}>
-//               {!isUser && !msg.error && <Tooltip title="Copiar"><IconButton onClick={() => onCopy(msg.text)} size="small"><ContentCopyIcon fontSize="inherit" /></IconButton></Tooltip>}
-//             </Box>
-//           </Box>
-//         );
-//       })}
-//       {loading && <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, color: 'text.secondary' }}><CircularProgress size={20} color="inherit" sx={{ mr: 1.5 }} /><Typography variant="body2" fontStyle="italic">Escribiendo...</Typography></Box>}
-//       <div ref={messagesEndRef} />
-//     </Box>
-//   );
-// }
-// export default MessageList;
+};
