@@ -117,7 +117,7 @@ export const SidebarChat = ({
                     <div className="flex items-start gap-3">
                       <div className="flex-1 truncate">
                         <h3 className="truncate text-sm leading-tight font-medium">
-                          {chat.title} hola ahahah hahah  hahha ahhahah
+                          {chat.title}
                         </h3>
                       </div>
                     </div>
