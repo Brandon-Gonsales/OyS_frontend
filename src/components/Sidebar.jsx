@@ -1,30 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 // Iconos de Material-UI
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SearchIcon from '@mui/icons-material/Search';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import UserProfile from './UserProfile';
-import { useAuth } from '../context/AuthContext';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+import UserProfile from "./UserProfile";
+import { useAuth } from "../context/AuthContext";
 
-function Sidebar({ 
-  allChats, 
-  handleNewChat, 
-  handleDeleteChat, 
-  activeChatId, 
+function Sidebar({
+  allChats,
+  handleNewChat,
+  handleDeleteChat,
+  activeChatId,
   setActiveChatId,
   toggleDarkMode,
-  darkMode
+  darkMode,
 }) {
   const navigate = useNavigate();
   const { chatId } = useParams();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-    const handleLogout = () => { logout(); navigate('/login'); };
-      const { user, logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+  const { user, logout } = useAuth();
 
   // Detectar si es móvil
   useEffect(() => {
@@ -38,11 +41,11 @@ function Sidebar({
     };
 
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const filteredChats = allChats.filter(chat =>
+  const filteredChats = allChats.filter((chat) =>
     chat.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -62,7 +65,7 @@ function Sidebar({
     <>
       {/* Overlay para móvil */}
       {isMobile && isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
@@ -77,15 +80,16 @@ function Sidebar({
       </button>
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed md:static inset-y-0 left-0 z-50 
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
         md:translate-x-0
         transition-transform duration-300 ease-in-out
         w-80 bg-light-bg dark:bg-dark-bg border-r border-light-border dark:border-dark-border
         flex flex-col h-screen
-      `}>
-        
+      `}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-light-border dark:border-gray-700">
           <h1 className="text-lg font-semibold text-light-primary dark:text-dark-primary truncate">
@@ -133,22 +137,24 @@ function Sidebar({
               <div
                 key={chat._id}
                 className={`group relative flex items-center justify-between py-1 px-3 rounded-md cursor-pointer transition-all duration-200 ${
-                  chatId === chat._id 
-                    ? 'bg-light-border' 
-                    : 'hover:shadow-sm hover:bg-light-border'
+                  chatId === chat._id
+                    ? "bg-light-border"
+                    : "hover:shadow-sm hover:bg-light-border"
                 }`}
                 onClick={() => handleChatClick(chat._id)}
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${
-                    chatId === chat._id 
-                      ? 'text-light-primary dark:text-dark-primary' 
-                      : 'text-light-primary dark:text-dark-primar'
-                  }`}>
+                  <p
+                    className={`text-sm font-medium truncate ${
+                      chatId === chat._id
+                        ? "text-light-primary dark:text-dark-primary"
+                        : "text-light-primary dark:text-dark-primar"
+                    }`}
+                  >
                     {chat.title}
                   </p>
                 </div>
-                
+
                 <button
                   onClick={(e) => handleDeleteClick(e, chat._id)}
                   className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-light-secondary dark:text-dark-secondary hover:text-light-danger dark:hover:text-dark-danger transition-all duration-200 ml-2"
@@ -160,7 +166,9 @@ function Sidebar({
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                {searchTerm ? 'No se encontraron chats' : 'No hay chats disponibles'}
+                {searchTerm
+                  ? "No se encontraron chats"
+                  : "No hay chats disponibles"}
               </p>
             </div>
           )}
@@ -169,11 +177,11 @@ function Sidebar({
         {/* Footer */}
         <div className="p-4">
           <UserProfile
-        userName={"Jose"}
-        onLogout={handleLogout}
-        toggleDarkMode={toggleDarkMode}
-        isDarkMode={darkMode}
-      />
+            userName={"Jose"}
+            onLogout={handleLogout}
+            toggleDarkMode={toggleDarkMode}
+            isDarkMode={darkMode}
+          />
         </div>
       </div>
     </>
