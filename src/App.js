@@ -14,17 +14,17 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
+      {/* <CssBaseline /> */}
+      < AuthProvider >
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route 
-            path="/*" 
-            element={<AppLogic darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} 
+          <Route
+            path="/*"
+            element={<AppLogic darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
           />
         </Routes>
-      </AuthProvider>
+      </ AuthProvider >
     </ThemeProvider>
   );
 }

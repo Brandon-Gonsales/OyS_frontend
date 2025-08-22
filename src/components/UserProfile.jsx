@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import LogoutIcon from '@mui/icons-material/Logout';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/LightMode';
+import React, { useState, useRef, useEffect } from "react";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 
 const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,15 +18,15 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleCloseDropdown);
+    document.addEventListener("mousedown", handleCloseDropdown);
     return () => {
-      document.removeEventListener('mousedown', handleCloseDropdown);
+      document.removeEventListener("mousedown", handleCloseDropdown);
     };
   }, []);
 
   const getInitials = (name) => {
-    if (!name) return '';
-    const parts = name.split(' ');
+    if (!name) return "";
+    const parts = name.split(" ");
     if (parts.length > 1) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
@@ -52,7 +52,7 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
 
       {isOpen && (
         <div
-          className="absolute bottom-14 w-56 origin-top-right divide-y divide-light-border dark:divide-dark-border rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          className="absolute bottom-14 w-56 origin-top-right divide-y divide-light-border dark:divide-dark-border rounded-md bg-light-bg dark:bg-dark-bg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="profile-menu-button"
@@ -65,34 +65,43 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
               </div>
               <span className="font-semibold">{userName}</span>
             </div>
-            
+
             <hr className="my-1 border-light-border dark:border-dark-border" />
 
             {/* Dropdown Options */}
             <button
               onClick={toggleDarkMode}
-              className="group flex w-full items-center px-4 py-2 text-sm transition-colors duration-200 hover:bg-light-border hover:dar:bg-dark-border"
+              className="group flex w-full items-center px-4 py-2 text-sm transition-colors duration-200 hover:bg-light-border hover:dark:bg-dark-bg_h"
               role="menuitem"
             >
               {isDarkMode ? (
                 <>
-                  <LightModeIcon className="mr-2 h-5 w-5 text-dark-primary group-hover:text-dark-primary" />
-                  Modo Claro
+                  <LightModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+                  <span className="text-light-primary dark:text-dark-primary">
+                    {" "}
+                    Modo Claro
+                  </span>
                 </>
               ) : (
                 <>
-                  <DarkModeIcon className="mr-2 h-5 w-5 text-light-primary group-hover:text-light-primary_h" />
-                  Modo Oscuro
+                  <DarkModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+                  <span className="text-light-primary dark:text-dark-primary">
+                    {" "}
+                    Modo Oscuro
+                  </span>
                 </>
               )}
             </button>
             <button
               onClick={onLogout}
-              className="group flex w-full items-center px-4 py-2 text-sm text-light-primary group-hover:text-light-primary_h transition-colors duration-200 hover:bg-gray-100"
+              className="group flex w-full items-center px-4 py-2 text-sm text-light-secondary transition-colors duration-200 hover:bg-light-border hover:dark:bg-dark-bg_h"
               role="menuitem"
             >
-              <LogoutIcon className="mr-2 h-5 w-5" />
-              Salir
+              <LogoutIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+              <span className="text-light-primary dark:text-dark-primary">
+                {" "}
+                Salir
+              </span>
             </button>
           </div>
         </div>
