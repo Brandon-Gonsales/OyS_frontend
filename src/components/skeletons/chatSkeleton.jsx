@@ -1,190 +1,94 @@
-import React from "react";
+import { useRef, useEffect } from "react";
 
-export const ChatSkeleton = ({
-  messagesCount = 4,
-  showAccordion = true,
-  animated = true,
-}) => {
-  // Patrones de mensajes
-  const messagePatterns = [
-    { isUser: false, lines: 3, hasAccordion: false },
-    { isUser: true, lines: 1, hasAccordion: false },
-    { isUser: false, lines: 2, hasAccordion: false },
-    { isUser: false, lines: 4, hasAccordion: showAccordion },
-    { isUser: true, lines: 2, hasAccordion: false },
-    { isUser: false, lines: 3, hasAccordion: false },
-  ];
-
-  const selectedPatterns = messagePatterns.slice(0, messagesCount);
-
+// Componente skeleton para un mensaje individual
+const MessageSkeleton = ({ isUser }) => {
   return (
-    <div className="flex flex-col gap-6 text-light-two">
-      {selectedPatterns.map((pattern, index) => (
-        <React.Fragment key={index}>
-          {/* Mensaje normal */}
+    <div
+      className={`flex items-start gap-1 sm:gap-3 ${
+        isUser ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div className="relative min-w-0">
+        <div
+          className={`relative rounded-xl p-3 md:p-4 ${
+            isUser
+              ? "w-fit rounded-tr-none bg-light-bg_h dark:bg-dark-bg_h"
+              : "rounded-tl-none"
+          }`}
+        >
           <div
-            className={`flex w-full items-start gap-1 sm:gap-3 ${
-              pattern.isUser ? "justify-end" : "justify-start"
+            className={`leading-relaxed animate-pulse ${
+              isUser
+                ? "text-light-bg_h dark:text-dark-bg_h"
+                : "text-light-primary dark:text-dark-primary"
             }`}
           >
-            {!pattern.isUser && (
-              <div className="hidden flex-shrink-0 items-center justify-center sm:flex">
-                <div
-                  className={`h-8 w-8 rounded-full bg-light-one_d dark:bg-dark-one_d ${
-                    animated ? "animate-pulse" : ""
-                  }`}
-                />
-              </div>
-            )}
-
-            <div className="relative w-full">
-              <div
-                className={`relative w-full rounded-xl p-3 md:p-4 ${
-                  pattern.isUser
-                    ? "w-fit rounded-tr-none bg-light-one_d dark:bg-dark-one_d"
-                    : "rounded-tl-none bg-light-one_d dark:bg-dark-one_d"
-                }`}
-              >
-                {/* Cola del mensaje */}
-                {pattern.isUser ? (
-                  <div className="absolute top-0 -right-3 h-0 w-0 rounded-tr-md border-b-[15px] border-l-[0px] border-t-transparent border-b-transparent border-l-light-one_d sm:border-l-[15px] dark:border-l-dark-one_d" />
-                ) : (
-                  <div className="absolute top-0 -left-3 h-0 w-0 rounded-tl-md border-r-[0px] border-b-[15px] border-t-transparent border-r-light-one_d border-b-transparent sm:border-r-[15px] dark:border-r-dark-one_d" />
+            {isUser ? (
+              // Skeleton para mensaje de usuario
+              <div className="text-base sm:text-lg">
+                <div className="h-4 sm:h-5 bg-gray-300 dark:bg-gray-600 rounded w-32 sm:w-48 mb-1"></div>
+                {Math.random() > 0.5 && (
+                  <div className="h-4 sm:h-5 bg-gray-300 dark:bg-gray-600 rounded w-20 sm:w-32"></div>
                 )}
-
-                {/* Contenido skeleton */}
-                <div className="space-y-2">
-                  {Array.from({ length: pattern.lines }).map((_, lineIndex) => {
-                    const widths = [
-                      "w-full",
-                      "w-3/4",
-                      "w-1/2",
-                      "w-5/6",
-                      "w-2/3",
-                    ];
-                    const randomWidth =
-                      widths[Math.floor(Math.random() * widths.length)];
-                    return (
-                      <div
-                        key={lineIndex}
-                        className={`h-4 rounded bg-light-one_d dark:bg-dark-one_d ${randomWidth} ${
-                          animated ? "animate-pulse" : ""
-                        }`}
-                        style={{
-                          animationDelay: `${index * 0.1 + lineIndex * 0.05}s`,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
               </div>
-            </div>
+            ) : (
+              // Skeleton para mensaje del bot
+              <div>
+                <div className="space-y-3 w-[200px]">
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-full max-w-md"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-5/6 max-w-sm"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-4/5 max-w-lg"></div>
 
-            {pattern.isUser && (
-              <div className="hidden flex-shrink-0 items-center justify-center sm:flex">
-                <div
-                  className={`h-8 w-8 rounded-full bg-light-one_d dark:bg-dark-one_d ${
-                    animated ? "animate-pulse" : ""
-                  }`}
-                />
+                  {/* Simular párrafos adicionales ocasionalmente */}
+                  {Math.random() > 0.4 && (
+                    <div className="space-y-2 mt-4">
+                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 max-w-xs"></div>
+                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3 max-w-sm"></div>
+                      {Math.random() > 0.7 && (
+                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 max-w-xs"></div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-          {/* Accordion skeleton */}
-          {pattern.hasAccordion && (
-            <div className="flex items-start justify-start gap-1 sm:gap-3">
-              <div className="hidden flex-shrink-0 items-center justify-center sm:flex">
-                <div
-                  className={`h-8 w-8 rounded-full bg-light-one_d dark:bg-dark-one_d ${
-                    animated ? "animate-pulse" : ""
-                  }`}
-                />
-              </div>
-              <div className="relative min-w-0 flex-grow">
-                <div className="rounded-xl bg-light-one_d p-4 dark:bg-dark-one_d">
-                  {/* Header accordion */}
-                  <div className="mb-4 flex items-center justify-between">
-                    <div
-                      className={`h-5 w-24 rounded bg-light-one_d dark:bg-dark-one_d ${
-                        animated ? "animate-pulse" : ""
-                      }`}
-                    />
-                    <div
-                      className={`h-4 w-4 rounded bg-light-one_d dark:bg-dark-one_d ${
-                        animated ? "animate-pulse" : ""
-                      }`}
-                    />
-                  </div>
+// Componente principal del skeleton de chat
+export const ChatSkeleton = ({ messageCount = 6 }) => {
+  const messagesEndRef = useRef(null);
 
-                  {/* Contenido del accordion */}
-                  <div className="space-y-4">
-                    {/* Función skeleton */}
-                    <div className="overflow-hidden rounded-lg border border-light-one bg-light-one_d dark:border-dark-one dark:bg-dark-one_d">
-                      <div className="border-b border-light-one px-4 py-2 dark:border-dark-one">
-                        <div
-                          className={`h-4 w-32 rounded bg-light-one_d dark:bg-dark-one_d ${
-                            animated ? "animate-pulse" : ""
-                          }`}
-                        />
-                      </div>
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-                      <div className="space-y-4 p-4">
-                        {/* Function Call */}
-                        <div>
-                          <div
-                            className={`mb-2 h-3 w-16 rounded bg-light-one_d dark:bg-dark-one_d ${
-                              animated ? "animate-pulse" : ""
-                            }`}
-                          />
-                          <div className="space-y-2 rounded bg-light-one_d p-3 dark:bg-dark-one_d">
-                            <div
-                              className={`h-3 w-full rounded bg-light-one_d dark:bg-dark-one_d ${
-                                animated ? "animate-pulse" : ""
-                              }`}
-                            />
-                            <div
-                              className={`h-3 w-3/4 rounded bg-light-one_d dark:bg-dark-one_d ${
-                                animated ? "animate-pulse" : ""
-                              }`}
-                            />
-                            <div
-                              className={`h-3 w-1/2 rounded bg-light-one_d dark:bg-dark-one_d ${
-                                animated ? "animate-pulse" : ""
-                              }`}
-                            />
-                          </div>
-                        </div>
+  // Generar array de mensajes alternando usuario/bot
+  const generateMessages = (count) => {
+    const messages = [];
+    for (let i = 0; i < count; i++) {
+      // Empezar con usuario (índice par = usuario, impar = bot)
+      messages.push({
+        id: i,
+        isUser: i % 2 === 0,
+      });
+    }
+    return messages;
+  };
 
-                        {/* Function Response */}
-                        <div>
-                          <div
-                            className={`mb-2 h-3 w-20 rounded bg-light-one_d dark:bg-dark-one_d ${
-                              animated ? "animate-pulse" : ""
-                            }`}
-                          />
-                          <div className="space-y-2 rounded bg-light-one_d p-3 dark:bg-dark-one_d">
-                            <div
-                              className={`h-3 w-full rounded bg-light-one_d dark:bg-dark-one_d ${
-                                animated ? "animate-pulse" : ""
-                              }`}
-                            />
-                            <div
-                              className={`h-3 w-5/6 rounded bg-light-one_d dark:bg-dark-one_d ${
-                                animated ? "animate-pulse" : ""
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </React.Fragment>
+  const skeletonMessages = generateMessages(messageCount);
+
+  return (
+    <div className="flex flex-col gap-6 text-light-two">
+      {skeletonMessages.map((msg) => (
+        <MessageSkeleton key={msg.id} isUser={msg.isUser} />
       ))}
+
+      <div ref={messagesEndRef} />
     </div>
   );
 };

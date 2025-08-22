@@ -53,9 +53,16 @@ function ChatView({ onChatUpdate }) {
       let chatAfterFileUpload = currentChat;
 
       if (file) {
+        if (!currentChat.activeContext) {
+          throw new Error(
+            "El contexto activo del chat no está definido. No se puede subir el archivo."
+          );
+        }
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("chatId", currentChat._id);
+        formData.append("documentType", currentChat.activeContext);
         const { data: fileResponse } = await apiClient.post(
           "/process-document",
           formData
@@ -169,16 +176,18 @@ function ChatView({ onChatUpdate }) {
     );
   }
 
+  console.log(currentChat);
+
   // No chat selected state
-  if (!currentChat) {
-    return (
-      <div className="p-6">
-        <p className="text-gray-600 dark:text-gray-400">
-          Selecciona un chat para comenzar.
-        </p>
-      </div>
-    );
-  }
+  // if (!currentChat) {
+  //   return (
+  //     <div className="p-6">
+  //       <p className="text-gray-600 dark:text-gray-400">
+  //         Selecciona un chat para comenzar.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
@@ -226,7 +235,7 @@ function ChatView({ onChatUpdate }) {
 
               <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6">
                 <div className="mx-auto max-w-4xl space-y-6">
-                  {currentChat.messages.length === 0 && (
+                  {currentChat?.messages.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
                       <h3 className="mb-3 text-xl font-bold text-light-two md:text-2xl dark:text-dark-primary">
                         ¡Hola! ¿En qué puedo ayudarte?
@@ -237,15 +246,11 @@ function ChatView({ onChatUpdate }) {
                     </div>
                   )}
 
-                  {allChats.length === 0 && loading ? (
-                    <ChatSkeleton
-                      messagesCount={4}
-                      showAccordion={true}
-                      animated={true}
-                    />
+                  {!currentChat || (allChats.length === 0 && loading) ? (
+                    <ChatSkeleton messagesCount={4} />
                   ) : (
                     <MessageList
-                      conversation={currentChat.messages}
+                      conversation={currentChat?.messages}
                       loading={loading}
                       onCopy={() => setSnackbarOpen(true)}
                     />
