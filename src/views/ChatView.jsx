@@ -217,19 +217,19 @@ function ChatView({ onChatUpdate }) {
             <div className="flex h-full w-full flex-col">
               {/* Header chat mobile */}
               <div className="flex w-full items-center justify-between bg-light-bg_h px-4 py-3 lg:hidden dark:bg-dark-bg_h">
-                <button
-                  onClick={handleNewChat}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-secondary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-one dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d dark:text-dark-secondary"
-                  aria-label="Nuevo chat"
-                >
-                  <EditIcon className="h-6 w-6" />
-                </button>
 
                 <button
                   onClick={toggleChatSidebar}
-                  className="group rounded-lg p-1 transition-colors hover:bg-light-two_d dark:bg-dark-two dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d dark:text-dark-secondary"
+                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
                 >
-                  <MenuIcon className="h-6 w-6 group-hover:text-light-secondary dark:text-dark-secondary dark:group-hover:text-dark-bg" />
+                  <MenuIcon className="h-6 w-6 " />
+                </button>
+                <button
+                  onClick={handleNewChat}
+                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+                  aria-label="Nuevo chat"
+                >
+                  <EditIcon className="h-6 w-6" />
                 </button>
               </div>
 

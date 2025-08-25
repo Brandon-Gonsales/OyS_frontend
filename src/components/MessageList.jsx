@@ -31,14 +31,14 @@ export const MessageList = ({ conversation, loading, onCopy }) => {
                 <div
                   className={`leading-relaxed ${
                     isUser
-                      ? "text-light-bg dark:text-dark-bg"
+                      ? "text-light-bg"
                       : "text-light-primary dark:text-dark-primary"
                   }`}
                 >
                   {isUser ? (
                     <div className="text-base sm:text-lg">{msg.text}</div>
                   ) : (
-                    <div>
+                    <div className=" overflow-hidden">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {msg.text}
                       </ReactMarkdown>

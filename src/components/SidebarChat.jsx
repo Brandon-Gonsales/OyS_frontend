@@ -40,6 +40,7 @@ export const SidebarChat = ({
     e.stopPropagation();
     handleDeleteChat(chatIdParam);
   };
+  
   return (
     <div
       className={`group relative z-30 bg-light-bg_h transition-all duration-300 ease-out dark:bg-dark-bg_h
@@ -66,14 +67,14 @@ export const SidebarChat = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={handleNewChat}
-                className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-secondary shadow-md transition-all duration-200 hover:bg-light-bg hover:shadow-lg dark:bg-dark-two dark:text-dark-secondary dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+                className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
                 aria-label="Nuevo chat"
               >
                 <EditIcon className="h-7 w-7" />
               </button>
               <button
                 onClick={toggleChatSidebar}
-                className="flex items-center rounded-lg bg-light-two p-1 text-sm text-light-secondary shadow-md transition-all duration-200 hover:bg-light-bg hover:shadow-lg dark:bg-dark-two dark:text-dark-secondary dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+                className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
               >
                 <MenuIcon className="size-7" />
               </button>
@@ -82,14 +83,14 @@ export const SidebarChat = ({
           <div className="px-3">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <SearchIcon className="w-5 h-5 text-light-primary dark:text-dark-bg" />
+                <SearchIcon className="w-5 h-5 text-light-primary dark:text-dark-primary" />
               </div>
               <input
                 type="text"
                 placeholder="Buscar chats..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-light-border dark:border-dark-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:border-transparent text-gray-900 dark:text-dark-bg placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
+                className="w-full dark:bg-dark-secondary pl-10 pr-4 py-3 border border-light-border shadow-md dark:border-dark-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-transparent placeholder-gray-500 dark:placeholder-gray-400 transition-colors text-light-primary dark:text-dark-primary"
               />
             </div>
           </div>
@@ -110,7 +111,7 @@ export const SidebarChat = ({
                   <div
                     className={`rounded-lg p-3 transition-all duration-200 ${
                       chatId === chat._id
-                        ? "bg-light-bg dark:bg-dark-bg text-light-secondary shadow-md dark:text-dark-secondary"
+                        ? "bg-light-bg dark:bg-dark-bg text-light-primary dark:text-dark-primary"
                         : "text-light-primary hover:bg-light-bg hover:text-light-secondary dark:text-dark-primary dark:hover:bg-dark-bg"
                     }`}
                   >
@@ -159,7 +160,7 @@ export const SidebarChat = ({
               )}
               <button
                 onClick={toggleChatSidebar}
-                className="absolute inset-0 flex items-center justify-center rounded-lg bg-light-two text-sm text-light-secondary shadow-md transition-all duration-300 hover:shadow-lg dark:bg-dark-two dark:text-dark-secondary 
+                className="absolute inset-0 flex items-center justify-center rounded-lg bg-light-two text-sm text-light-primary shadow-md transition-all duration-300 hover:shadow-lg dark:bg-dark-two dark:text-dark-primary 
                 hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
               >
                 <MenuIcon className="h-7 w-7" />
@@ -167,7 +168,7 @@ export const SidebarChat = ({
             </div>
             <button
               onClick={handleNewChat}
-              className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-secondary shadow-md transition-all duration-200 hover:bg-light-two_d hover:shadow-lg dark:bg-dark-two dark:text-dark-secondary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+              className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary shadow-md transition-all duration-200 hover:bg-light-two_d hover:shadow-lg dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
               aria-label="Nuevo chat"
             >
               <EditIcon className="h-7 w-7" />

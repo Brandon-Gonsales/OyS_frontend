@@ -26,8 +26,8 @@ module.exports = {
           bg_h: "#151519", // azul clarito
           primary: "#FFFFFF", // azul principal
           primary_h: "#FFFFFF", // azul principal
-          secondary: "#FFFFFF", // azul oscuro
-          secondary_h: "#FFFFFF", // azul oscuro
+          secondary: "#2A3964", // azul oscuro
+          secondary_h: "#2A3964", // azul oscuro
           border: "#f3f4f6", // azul oscuro
           border_h: "#B0B0B0", // azul oscuro
           accent: "#E47400", // un color suelto (rosa fuerte)
