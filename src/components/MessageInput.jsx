@@ -142,9 +142,12 @@ function MessageInput({ onSendMessage, loading }) {
   const handleSend = () => {
     if (!message.trim() && files.length === 0) return;
 
-    // Por ahora enviamos solo el primer archivo para mantener compatibilidad
-    const firstFile = files.length > 0 ? files[0].file : null;
-    onSendMessage(message.trim(), firstFile);
+    // El siguiente solo enviaba el primer file
+    //const firstFile = files.length > 0 ? files[0].file : null;
+    //El siguiente envia todos los files
+    const filesToSend = files.map(fileObj => fileObj.file);
+
+    onSendMessage(message.trim(), filesToSend);
 
     setMessage("");
     setFiles([]);
