@@ -40,12 +40,12 @@ export const SidebarChat = ({
     e.stopPropagation();
     handleDeleteChat(chatIdParam);
   };
-  
+
   return (
     <div
       className={`group relative z-30 bg-light-bg_h transition-all duration-300 ease-out dark:bg-dark-bg_h
-			${sidebarChatCollapsed ? "w-0 lg:w-16" : "w-72 lg:w-72"} 
-			${sidebarChatCollapsed ? "hidden lg:block" : "block"} 
+			${sidebarChatCollapsed ? "w-0 md:w-16" : "w-72 md:w-72"} 
+			${sidebarChatCollapsed ? "hidden md:block" : "block"} 
 			flex-shrink-0`}
     >
       {!sidebarChatCollapsed ? (

@@ -10,6 +10,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
+import { AgentSelector } from "../components/AgentSelector";
 
 function ChatView({ onChatUpdate }) {
   const { chatId } = useParams();
@@ -23,7 +24,7 @@ function ChatView({ onChatUpdate }) {
   const [allChats, setAllChats] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const [selectedAgentId, setSelectedAgentId] = useState("2");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const fetchChat = useCallback(async () => {
@@ -45,14 +46,15 @@ function ChatView({ onChatUpdate }) {
   }, [fetchChat]);
 
   const handleSendMessage = async (userText, files) => {
-    if (!currentChat || (!userText.trim() && (!files || files.length===0))) return;
+    if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
+      return;
     setLoadingSendMessage(true);
     setError(null);
 
     try {
       let chatAfterFileUpload = currentChat;
 
-      if (files && files.length>0) {
+      if (files && files.length > 0) {
         if (!currentChat.activeContext) {
           throw new Error(
             "El contexto activo del chat no está definido. No se puede subir el archivo."
@@ -60,7 +62,7 @@ function ChatView({ onChatUpdate }) {
         }
 
         const formData = new FormData();
-        for (const file of files){
+        for (const file of files) {
           formData.append("files", file);
         }
         formData.append("chatId", currentChat._id);
@@ -141,6 +143,11 @@ function ChatView({ onChatUpdate }) {
     }
   }, [user, navigate, handleNewChat]);
 
+  const handleAgentChange = (agentId) => {
+    setSelectedAgentId(agentId);
+    console.log(`Agent seleccionado: ${agentId}`);
+  };
+
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
@@ -197,7 +204,7 @@ function ChatView({ onChatUpdate }) {
         {/* overlaysideabr */}
         {!sidebarChatCollapsed && (
           <div
-            className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
             onClick={toggleChatSidebar}
           ></div>
         )}
@@ -218,20 +225,26 @@ function ChatView({ onChatUpdate }) {
           <div className="relative h-full flex-1 overflow-hidden">
             <div className="flex h-full w-full flex-col">
               {/* Header chat mobile */}
-              <div className="flex w-full items-center justify-between bg-light-bg_h px-4 py-3 lg:hidden dark:bg-dark-bg_h">
+              <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
+                <div className="flex items-center gap-2">
+                  <AgentSelector
+                    selectedAgentId={selectedAgentId}
+                    onAgentChange={handleAgentChange}
+                  />
+                  <button
+                    onClick={handleNewChat}
+                    className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                    aria-label="Nuevo chat"
+                  >
+                    <EditIcon className="h-6 w-6" />
+                  </button>
+                </div>
 
                 <button
                   onClick={toggleChatSidebar}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                 >
                   <MenuIcon className="h-6 w-6 " />
-                </button>
-                <button
-                  onClick={handleNewChat}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
-                  aria-label="Nuevo chat"
-                >
-                  <EditIcon className="h-6 w-6" />
                 </button>
               </div>
 
