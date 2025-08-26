@@ -96,7 +96,7 @@ function Sidebar({
             Modelo de Asistencia OyS
           </h1>
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => setIsOpen(false)}
             className="hidden md:flex p-1.5 rounded-lg hover:bg-light-secondary_h dark:hover:bg-dark-secondary_h transition-colors group"
           >
             <MenuIcon className="w-5 h-5 text-light-secondary dark:text-dark-secondary group-hover:text-light-bg group-hover:dark:text-dark-bg" />

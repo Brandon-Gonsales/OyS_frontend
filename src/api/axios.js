@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const apiClient = axios.create({
   // El proxy en package.json se encarga del prefijo 'http://localhost:5000'
-   baseURL: `${process.env.REACT_APP_API_URL}/api`,
+  baseURL: `${process.env.REACT_APP_API_URL}/api`,
 });
 
 apiClient.interceptors.request.use(
