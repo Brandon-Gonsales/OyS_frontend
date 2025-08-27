@@ -11,8 +11,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
 import { AgentSelector } from "../components/AgentSelector";
+import chatService from "../services/chat-service";
 
-function ChatView({ onChatUpdate }) {
+function ChatView() {
   const { chatId } = useParams();
   const [currentChat, setCurrentChat] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,12 @@ function ChatView({ onChatUpdate }) {
     fetchChat();
   }, [fetchChat]);
 
+  const handleChatUpdate = (updatedChat) => {
+    setAllChats((prev) =>
+      prev.map((c) => (c._id === updatedChat._id ? updatedChat : c))
+    );
+  };
+
   const handleSendMessage = async (userText, files) => {
     if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
       return;
@@ -73,7 +80,7 @@ function ChatView({ onChatUpdate }) {
         );
         chatAfterFileUpload = fileResponse.updatedChat;
         setCurrentChat(chatAfterFileUpload);
-        onChatUpdate(chatAfterFileUpload);
+        handleChatUpdate(chatAfterFileUpload);
       }
 
       if (userText.trim()) {
@@ -92,7 +99,7 @@ function ChatView({ onChatUpdate }) {
         });
 
         setCurrentChat(data.updatedChat);
-        onChatUpdate(data.updatedChat);
+        handleChatUpdate(data.updatedChat);
       }
     } catch (err) {
       setError(`Error: ${err.response?.data?.message || err.message}`);
@@ -145,7 +152,6 @@ function ChatView({ onChatUpdate }) {
 
   const handleAgentChange = (agentId) => {
     setSelectedAgentId(agentId);
-    console.log(`Agent seleccionado: ${agentId}`);
   };
 
   useEffect(() => {
@@ -153,50 +159,41 @@ function ChatView({ onChatUpdate }) {
   }, [fetchChats]);
 
   const handleDeleteChat = useCallback(
-    async (chatIdToDelete) => {
-      const originalChats = [...allChats];
+    (chatIdToDelete) => {
+      // Eliminar el chat de la lista allChats
       const newChats = allChats.filter((c) => c._id !== chatIdToDelete);
       setAllChats(newChats);
+
+      // Si estamos en el chat que se está eliminando, navegar a otro
       if (window.location.pathname.includes(chatIdToDelete)) {
-        if (newChats.length > 0) navigate(`/chat/${newChats[0]._id}`);
-        else await handleNewChat();
-      }
-      try {
-        await apiClient.delete(`/chats/${chatIdToDelete}`);
-      } catch {
-        setAllChats(originalChats);
+        handleNewChat();
       }
     },
     [allChats, navigate, handleNewChat]
   );
 
-  const handleChatUpdate = (updatedChat) => {
-    setAllChats((prev) =>
-      prev.map((c) => (c._id === updatedChat._id ? updatedChat : c))
-    );
-  };
+  const handleChatUpdated = useCallback(
+    (updatedChat) => {
+      // Actualizar el chat en la lista allChats
+      setAllChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat._id === updatedChat._id ? updatedChat : chat
+        )
+      );
+
+      // Si es el chat actual, actualizarlo también
+      if (currentChat && currentChat._id === updatedChat._id) {
+        setCurrentChat(updatedChat);
+      }
+    },
+    [currentChat]
+  );
+
+  const handleError = useCallback((errorMessage) => {
+    setError(errorMessage);
+  }, []);
 
   // Error state
-  if (error) {
-    return (
-      <div className="p-4">
-        <Alert severity="error">{error}</Alert>
-      </div>
-    );
-  }
-
-  console.log(currentChat);
-
-  // No chat selected state
-  // if (!currentChat) {
-  //   return (
-  //     <div className="p-6">
-  //       <p className="text-gray-600 dark:text-gray-400">
-  //         Selecciona un chat para comenzar.
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
@@ -218,8 +215,9 @@ function ChatView({ onChatUpdate }) {
           setActiveChatId={setActiveChatId}
           sidebarChatCollapsed={sidebarChatCollapsed}
           logo={null}
+          onChatUpdated={handleChatUpdated}
+          onError={handleError}
         />
-
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Chat Section */}
           <div className="relative h-full flex-1 overflow-hidden">
@@ -295,7 +293,7 @@ function ChatView({ onChatUpdate }) {
 						/> */}
                 <MessageInput
                   onSendMessage={handleSendMessage}
-                  loading={loading}
+                  loading={loadingSendMessage}
                 />
               </div>
             </div>

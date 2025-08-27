@@ -8,6 +8,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import useAppTheme from "../hooks/useAppTheme";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
+import { ChatItem } from "./Modals";
 export const SidebarChat = ({
   allChats,
   handleNewChat,
@@ -17,6 +18,8 @@ export const SidebarChat = ({
   activeChatId,
   setActiveChatId,
   logo,
+  onChatUpdated,
+  onError,
 }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -33,12 +36,22 @@ export const SidebarChat = ({
     chat.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const handleChatClick = (chatIdParam) => {
+    console.log("chatIdParam: ", chatIdParam);
     navigate(`/chat/${chatIdParam}`);
   };
 
   const handleDeleteClick = (e, chatIdParam) => {
     e.stopPropagation();
     handleDeleteChat(chatIdParam);
+  };
+
+  const handleChatDeleted = (deletedChatId) => {
+    // Llamar a la función original del padre
+    handleDeleteChat(deletedChatId);
+  };
+
+  const handleChatUpdated = (updatedChat) => {
+    onChatUpdated(updatedChat);
   };
 
   return (
@@ -98,38 +111,17 @@ export const SidebarChat = ({
           <div className="flex-1 space-y-1 overflow-y-auto p-3">
             {filteredChats.length > 0 ? (
               filteredChats.map((chat) => (
-                <div
+                <ChatItem
                   key={chat._id}
-                  className={`group cursor-pointer transition-all duration-200 ${
-                    chatId === chat._id ? "scale-[1.02]" : "hover:scale-[1.01]"
-                  }`}
+                  chat={chat}
+                  isActive={chatId === chat._id}
                   onClick={() => {
                     chatId !== chat._id && handleChatClick(chat._id);
                   }}
-                  role="button"
-                >
-                  <div
-                    className={`rounded-lg p-3 transition-all duration-200 ${
-                      chatId === chat._id
-                        ? "bg-light-bg dark:bg-dark-bg text-light-primary dark:text-dark-primary"
-                        : "text-light-primary hover:bg-light-bg hover:text-light-secondary dark:text-dark-primary dark:hover:bg-dark-bg"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 truncate">
-                        <h3 className="truncate text-sm leading-tight font-medium">
-                          {chat.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                  {/* <button
-                    onClick={(e) => handleDeleteClick(e, chat._id)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-light-secondary dark:text-dark-secondary hover:text-light-danger dark:hover:text-dark-danger transition-all duration-200 ml-2"
-                  >
-                    <DeleteIcon className="w-4 h-4" />
-                  </button> */}
-                </div>
+                  onChatUpdated={onChatUpdated}
+                  onChatDeleted={handleChatDeleted}
+                  onError={onError}
+                />
               ))
             ) : (
               <div className="py-8 text-center">

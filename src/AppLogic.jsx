@@ -111,10 +111,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
             )
           }
         />
-        <Route
-          path="chat/:chatId"
-          element={<ChatView onChatUpdate={handleChatUpdate} />}
-        />
+        <Route path="chat/:chatId" element={<ChatView />} />
       </Route>
       <Route path="info" element={<ProjectInfoView />} />
       <Route path="*" element={<Navigate to="/" replace />} />
