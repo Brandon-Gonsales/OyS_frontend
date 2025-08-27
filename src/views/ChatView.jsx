@@ -20,7 +20,7 @@ function ChatView() {
   const [loadingSendMessage, setLoadingSendMessage] = useState(false);
   const [error, setError] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
-  let chatEndRef = useRef(null);
+  //let chatEndRef = useRef(null);
   const [sidebarChatCollapsed, setSidebarChatCollapsed] = useState(false);
   const [allChats, setAllChats] = useState([]);
   const { user } = useAuth();
@@ -78,12 +78,14 @@ function ChatView() {
           "/process-document",
           formData
         );
+        console.log("fileResponse", fileResponse);
         chatAfterFileUpload = fileResponse.updatedChat;
         setCurrentChat(chatAfterFileUpload);
         handleChatUpdate(chatAfterFileUpload);
       }
 
       if (userText.trim()) {
+        console.log("userText", userText);
         const historyForApi = [
           ...chatAfterFileUpload.messages,
           { sender: "user", text: userText },
@@ -97,7 +99,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-
+        console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -220,7 +222,7 @@ function ChatView() {
         />
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Chat Section */}
-          <div className="relative h-full flex-1 overflow-hidden">
+          <div className="relative h-full flex-1 overflow-hidden" >
             <div className="flex h-full w-full flex-col">
               {/* Header chat mobile */}
               <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
@@ -246,7 +248,7 @@ function ChatView() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6">
+              <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6 scroll-smooth">
                 <div className="mx-auto max-w-4xl space-y-6">
                   {currentChat?.messages.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
@@ -254,7 +256,7 @@ function ChatView() {
                         ¡Hola! ¿En qué puedo ayudarte?
                       </h3>
                       <p className="max-w-md text-base text-light-two md:text-lg dark:text-dark-primary">
-                        Escribe tu mensaje para comenzar una conversación
+                       Vamos! Inicia una conversación
                       </p>
                     </div>
                   )}
@@ -266,6 +268,7 @@ function ChatView() {
                       conversation={currentChat?.messages}
                       loading={loading}
                       onCopy={() => setSnackbarOpen(true)}
+                      
                     />
                   )}
 
@@ -279,18 +282,12 @@ function ChatView() {
                     </div>
                   )}
 
-                  <div ref={chatEndRef}></div>
+                  {/* <div ref={chatEndRef}></div> */}
                 </div>
               </div>
 
               {/* Input Area */}
               <div className="w-full px-1 pb-2 md:px-6 lg:mb-0">
-                {/* <InputArea
-							{handleSendMessage}
-							{isLoading}
-							{autoResizeTextarea}
-							class="mx-auto max-w-4xl"
-						/> */}
                 <MessageInput
                   onSendMessage={handleSendMessage}
                   loading={loadingSendMessage}
