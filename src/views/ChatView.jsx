@@ -115,7 +115,7 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/ch23at", {
+        const { data } = await apiClient.post("/chat", {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
