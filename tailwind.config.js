@@ -18,7 +18,7 @@ module.exports = {
           accent: "#E47400", // un color suelto (rosa fuerte)
           accent_h: "#E47400", // un color suelto (rosa fuerte)
           success: "#28a745", // Verde éxito
-          danger: "#dc3545",  // Rojo error
+          danger: "#FF0000",  // Rojo error
           warning: "#ffc107",
         },
         dark: {
@@ -33,7 +33,7 @@ module.exports = {
           accent: "#E47400", // un color suelto (rosa fuerte)
           accent_h: "#E47400", // un color suelto (rosa fuerte)ç
           success: "#28a745", // Verde éxito
-          danger: "#dc3545",  // Rojo error
+          danger: "#FF0000",  // Rojo error
           warning: "#ffc107",
         },
       },

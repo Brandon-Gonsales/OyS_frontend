@@ -4,14 +4,15 @@ import MessageInput from "../components/MessageInput";
 import { SidebarChat } from "../components/SidebarChat";
 import apiClient from "../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { Alert } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
 import { AgentSelector } from "../components/AgentSelector";
-import chatService from "../services/chat-service";
+import { alert } from "../utils/alert";
+import { useDropzone } from 'react-dropzone';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 function ChatView() {
   const { chatId } = useParams();
@@ -27,6 +28,9 @@ function ChatView() {
   const navigate = useNavigate();
   const [selectedAgentId, setSelectedAgentId] = useState("2");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [isDragOverGlobal, setIsDragOverGlobal] = useState(false);
+  const [globalFiles, setGlobalFiles] = useState([]);
+  const messageInputRef = useRef(null);
 
   const fetchChat = useCallback(async () => {
     if (!chatId) return;
@@ -57,6 +61,23 @@ function ChatView() {
       return;
     setLoadingSendMessage(true);
     setError(null);
+    console.log("allChats", allChats)
+    console.log("current chat", currentChat)
+    const userMessage = {
+      sender: "user",
+      text: userText,
+      timestamp: new Date().toISOString(),
+      error: false,
+      tempId: Date.now(), // ID temporal para identificar el mensaje
+    };
+    let aiMessage = null;
+    if (userText.trim()) {
+      const updatedChat = {
+        ...currentChat,
+        messages: [...currentChat.messages, userMessage],
+      };
+      setCurrentChat(updatedChat);
+    }
 
     try {
       let chatAfterFileUpload = currentChat;
@@ -94,7 +115,7 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/chat", {
+        const { data } = await apiClient.post("/ch23at", {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
@@ -105,6 +126,8 @@ function ChatView() {
       }
     } catch (err) {
       setError(`Error: ${err.response?.data?.message || err.message}`);
+      alert("error","ocurrio un error inesperado, intente de nuevo");
+      
     } finally {
       setLoadingSendMessage(false);
     }
@@ -191,14 +214,71 @@ function ChatView() {
     [currentChat]
   );
 
+  console.log("allChats", allChats)
+  console.log("currentChat", currentChat)
+
   const handleError = useCallback((errorMessage) => {
     setError(errorMessage);
   }, []);
 
+
+  //functions para cargar archivos
+  const onGlobalDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 0) {
+      const newFiles = acceptedFiles.map((file) => ({
+        file,
+        id: Math.random().toString(36).substr(2, 9),
+        preview: file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : null,
+      }));
+      
+      // Pasar los archivos al MessageInput
+      if (messageInputRef.current) {
+        messageInputRef.current.addFilesFromGlobal(newFiles);
+      }
+    }
+  }, []);
+
+  // Configurar dropzone global
+  const { getRootProps: getGlobalRootProps, getInputProps: getGlobalInputProps, isDragActive: isGlobalDragActive } = useDropzone({
+    onDrop: onGlobalDrop,
+    multiple: true,
+    noClick: true,
+    noKeyboard: true,
+    onDragEnter: () => setIsDragOverGlobal(true),
+    onDragLeave: (e) => {
+      // Solo ocultar si realmente salimos del área completa
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        setIsDragOverGlobal(false);
+      }
+    },
+    onDropAccepted: () => setIsDragOverGlobal(false),
+    onDropRejected: () => setIsDragOverGlobal(false),
+  });
+
   // Error state
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
+    <div   {...getGlobalRootProps()} className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg relative">
+       <input {...getGlobalInputProps()} />
+      
+      {/* Overlay global de drag & drop */}
+      {(isGlobalDragActive || isDragOverGlobal) && (
+        <div className="fixed inset-0 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 flex items-center justify-center z-50">
+          <div className="text-center bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+              <AttachFileIcon className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Suelta los archivos aquí
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Los archivos se agregarán al mensaje
+            </p>
+          </div>
+        </div>
+      )}
       <div className="relative flex h-full w-full">
         {/* overlaysideabr */}
         {!sidebarChatCollapsed && (
@@ -281,16 +361,20 @@ function ChatView() {
                       </div>
                     </div>
                   )}
-
-                  {/* <div ref={chatEndRef}></div> */}
                 </div>
               </div>
 
               {/* Input Area */}
               <div className="w-full px-1 pb-2 md:px-6 lg:mb-0">
                 <MessageInput
+                  // onSendMessage={handleSendMessage}
+                  // loading={loadingSendMessage}
+                  // error={error}
+                  ref={messageInputRef}
                   onSendMessage={handleSendMessage}
                   loading={loadingSendMessage}
+                  error={error}
+                  disableGlobalDrop={isGlobalDragActive || isDragOverGlobal}
                 />
               </div>
             </div>

@@ -6,11 +6,11 @@ export const AgentSelector = ({
   selectedAgentId = "1",
   onAgentChange = () => {},
   agents = [
-    { id: "1", name: "Chat" },
-    { id: "2", name: "Comp Facul" },
-    { id: "3", name: "Comp Adm" },
-    { id: "4", name: "Consolidado Facul" },
-    { id: "5", name: "Consolidado Adm" },
+    { id: "compatibilizacionFacultades", name: "Chat" },
+    { id: "consolidadoFacultades", name: "Comp Facul" },
+    { id: "compatibilizacionAdministrativo", name: "Comp Adm" },
+    { id: "consolidadoAdministrativo", name: "Consolidado Facul" },
+    { id: "miscellaneous", name: "Consolidado Adm" },
   ],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
