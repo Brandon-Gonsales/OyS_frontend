@@ -11,8 +11,8 @@ import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
 import { AgentSelector } from "../components/AgentSelector";
 import { alert } from "../utils/alert";
-import { useDropzone } from 'react-dropzone';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { useDropzone } from "react-dropzone";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 function ChatView() {
   const { chatId } = useParams();
@@ -26,11 +26,14 @@ function ChatView() {
   const [allChats, setAllChats] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selectedAgentId, setSelectedAgentId] = useState("2");
+  const [selectedAgentId, setSelectedAgentId] = useState(
+    "compatibilizacionFacultades"
+  );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [isDragOverGlobal, setIsDragOverGlobal] = useState(false);
   const [globalFiles, setGlobalFiles] = useState([]);
   const messageInputRef = useRef(null);
+  const [selectedForm, setSelectedForm] = useState("form1");
 
   const fetchChat = useCallback(async () => {
     if (!chatId) return;
@@ -61,8 +64,8 @@ function ChatView() {
       return;
     setLoadingSendMessage(true);
     setError(null);
-    console.log("allChats", allChats)
-    console.log("current chat", currentChat)
+    console.log("allChats", allChats);
+    console.log("current chat", currentChat);
     const userMessage = {
       sender: "user",
       text: userText,
@@ -81,30 +84,56 @@ function ChatView() {
 
     try {
       let chatAfterFileUpload = currentChat;
-
+      //https://oys-develop.onrender.com/api/extract-json
       if (files && files.length > 0) {
         if (!currentChat.activeContext) {
           throw new Error(
             "El contexto activo del chat no está definido. No se puede subir el archivo."
           );
         }
-
-        const formData = new FormData();
-        for (const file of files) {
-          formData.append("files", file);
+        if (selectedForm && selectedAgentId === "consolidadoFacultades") {
+          const formData = new FormData();
+          for (const file of files) {
+            formData.append("files", file);
+          }
+          formData.append("formType", selectedForm);
+          const { data: fileResponse } = await apiClient.post(
+            "/extract-json",
+            formData
+          );
+          console.log("fileResponse extract-sjon", fileResponse);
+          aiMessage = {
+            sender: "ai",
+            text: `El archivo se ha cargado correctamente: "${fileResponse.procesosFacultad.nombreFacultad}"`,
+            timestamp: new Date().toISOString(),
+            error: false,
+            tempId: Date.now(), // ID temporal para identificar el mensaje
+          };
+          const updatedChatAgent = {
+            ...currentChat,
+            messages: [...currentChat.messages, aiMessage],
+          };
+          setCurrentChat(updatedChatAgent);
+          // chatAfterFileUpload = fileResponse.updatedChat;
+          // setCurrentChat(chatAfterFileUpload);
+          // handleChatUpdate(chatAfterFileUpload);
+        } else {
+          const formData = new FormData();
+          for (const file of files) {
+            formData.append("files", file);
+          }
+          formData.append("chatId", currentChat._id);
+          formData.append("documentType", currentChat.activeContext);
+          const { data: fileResponse } = await apiClient.post(
+            "/process-document",
+            formData
+          );
+          console.log("fileResponse", fileResponse);
+          chatAfterFileUpload = fileResponse.updatedChat;
+          setCurrentChat(chatAfterFileUpload);
+          handleChatUpdate(chatAfterFileUpload);
         }
-        formData.append("chatId", currentChat._id);
-        formData.append("documentType", currentChat.activeContext);
-        const { data: fileResponse } = await apiClient.post(
-          "/process-document",
-          formData
-        );
-        console.log("fileResponse", fileResponse);
-        chatAfterFileUpload = fileResponse.updatedChat;
-        setCurrentChat(chatAfterFileUpload);
-        handleChatUpdate(chatAfterFileUpload);
       }
-
       if (userText.trim()) {
         console.log("userText", userText);
         const historyForApi = [
@@ -126,8 +155,7 @@ function ChatView() {
       }
     } catch (err) {
       setError(`Error: ${err.response?.data?.message || err.message}`);
-      alert("error","ocurrio un error inesperado, intente de nuevo");
-      
+      alert("error", "ocurrio un error inesperado, intente de nuevo");
     } finally {
       setLoadingSendMessage(false);
     }
@@ -214,13 +242,9 @@ function ChatView() {
     [currentChat]
   );
 
-  console.log("allChats", allChats)
-  console.log("currentChat", currentChat)
-
   const handleError = useCallback((errorMessage) => {
     setError(errorMessage);
   }, []);
-
 
   //functions para cargar archivos
   const onGlobalDrop = useCallback((acceptedFiles) => {
@@ -232,7 +256,7 @@ function ChatView() {
           ? URL.createObjectURL(file)
           : null,
       }));
-      
+
       // Pasar los archivos al MessageInput
       if (messageInputRef.current) {
         messageInputRef.current.addFilesFromGlobal(newFiles);
@@ -241,7 +265,11 @@ function ChatView() {
   }, []);
 
   // Configurar dropzone global
-  const { getRootProps: getGlobalRootProps, getInputProps: getGlobalInputProps, isDragActive: isGlobalDragActive } = useDropzone({
+  const {
+    getRootProps: getGlobalRootProps,
+    getInputProps: getGlobalInputProps,
+    isDragActive: isGlobalDragActive,
+  } = useDropzone({
     onDrop: onGlobalDrop,
     multiple: true,
     noClick: true,
@@ -257,12 +285,18 @@ function ChatView() {
     onDropRejected: () => setIsDragOverGlobal(false),
   });
 
+  const onChangeSelectedForm = (typeForm) => {
+    setSelectedForm(typeForm);
+  };
   // Error state
 
   return (
-    <div   {...getGlobalRootProps()} className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg relative">
-       <input {...getGlobalInputProps()} />
-      
+    <div
+      {...getGlobalRootProps()}
+      className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg relative"
+    >
+      <input {...getGlobalInputProps()} />
+
       {/* Overlay global de drag & drop */}
       {(isGlobalDragActive || isDragOverGlobal) && (
         <div className="fixed inset-0 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 flex items-center justify-center z-50">
@@ -302,7 +336,7 @@ function ChatView() {
         />
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Chat Section */}
-          <div className="relative h-full flex-1 overflow-hidden" >
+          <div className="relative h-full flex-1 overflow-hidden">
             <div className="flex h-full w-full flex-col">
               {/* Header chat mobile */}
               <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
@@ -336,7 +370,7 @@ function ChatView() {
                         ¡Hola! ¿En qué puedo ayudarte?
                       </h3>
                       <p className="max-w-md text-base text-light-two md:text-lg dark:text-dark-primary">
-                       Vamos! Inicia una conversación
+                        Vamos! Inicia una conversación
                       </p>
                     </div>
                   )}
@@ -348,7 +382,6 @@ function ChatView() {
                       conversation={currentChat?.messages}
                       loading={loading}
                       onCopy={() => setSnackbarOpen(true)}
-                      
                     />
                   )}
 
@@ -375,6 +408,9 @@ function ChatView() {
                   loading={loadingSendMessage}
                   error={error}
                   disableGlobalDrop={isGlobalDragActive || isDragOverGlobal}
+                  selectedAgentId={selectedAgentId}
+                  selectedForm={selectedForm}
+                  onChangeSelectedForm={onChangeSelectedForm}
                 />
               </div>
             </div>

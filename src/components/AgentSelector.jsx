@@ -3,14 +3,14 @@ import AssistantIcon from "@mui/icons-material/Assistant";
 
 export const AgentSelector = ({
   collapsed = false,
-  selectedAgentId = "1",
+  selectedAgentId = "compatibilizacionFacultades",
   onAgentChange = () => {},
   agents = [
     { id: "compatibilizacionFacultades", name: "Chat" },
     { id: "consolidadoFacultades", name: "Comp Facul" },
-    { id: "compatibilizacionAdministrativo", name: "Comp Adm" },
-    { id: "consolidadoAdministrativo", name: "Consolidado Facul" },
-    { id: "miscellaneous", name: "Consolidado Adm" },
+    // { id: "compatibilizacionAdministrativo", name: "Comp Adm" },
+    // { id: "consolidadoAdministrativo", name: "Consolidado Facul" },
+    // { id: "miscellaneous", name: "Consolidado Adm" },
   ],
 }) => {
   const [isOpen, setIsOpen] = useState(false);

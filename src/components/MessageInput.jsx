@@ -1,13 +1,30 @@
-import React, { useState, useCallback, useEffect, useRef,useImperativeHandle  } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import { useDropzone } from "react-dropzone";
-import ImageIcon from '@mui/icons-material/Image';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import CloseIcon from '@mui/icons-material/Close';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import AddIcon  from '@mui/icons-material/Add';
-import SendIcon from '@mui/icons-material/Send';
+import ImageIcon from "@mui/icons-material/Image";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import CloseIcon from "@mui/icons-material/Close";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import AddIcon from "@mui/icons-material/Add";
+import SendIcon from "@mui/icons-material/Send";
 
-function MessageInput({ onSendMessage, loading, error ,disableGlobalDrop }, ref) {
+function MessageInput(
+  {
+    onSendMessage,
+    loading,
+    error,
+    disableGlobalDrop,
+    selectedAgentId,
+    selectedForm,
+    onChangeSelectedForm,
+  },
+  ref
+) {
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
@@ -19,9 +36,14 @@ function MessageInput({ onSendMessage, loading, error ,disableGlobalDrop }, ref)
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
       setFiles((prev) => [...prev, ...newFiles]);
-    }
+    },
   }));
-
+  // Resetear el form seleccionado cuando cambien las condiciones
+  useEffect(() => {
+    if (selectedAgentId !== "consolidadoFacultades" || files.length === 0) {
+      onChangeSelectedForm("form1");
+    }
+  }, [selectedAgentId, files.length, onChangeSelectedForm]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -68,7 +90,7 @@ function MessageInput({ onSendMessage, loading, error ,disableGlobalDrop }, ref)
 
   const handleSend = () => {
     if (!message.trim() && files.length === 0) return;
-    const filesToSend = files.map(fileObj => fileObj.file);
+    const filesToSend = files.map((fileObj) => fileObj.file);
 
     onSendMessage(message.trim(), filesToSend);
 
@@ -138,6 +160,14 @@ function MessageInput({ onSendMessage, loading, error ,disableGlobalDrop }, ref)
         Math.min(textareaRef.current.scrollHeight, 120) + "px";
     }
   };
+  // Determinar si mostrar el selector de formularios
+  const showFormSelector =
+    selectedAgentId === "consolidadoFacultades" && files.length > 0;
+  const formOptions = [
+    { value: "form1", label: "Formulario 1" },
+    { value: "form2", label: "Formulario 2" },
+    { value: "form3", label: "Formulario 3" },
+  ];
 
   return (
     <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
@@ -190,6 +220,74 @@ function MessageInput({ onSendMessage, loading, error ,disableGlobalDrop }, ref)
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {/* Selector de formularios - Solo visible cuando es necesario */}
+      {showFormSelector && (
+        <div className="bg-light-secondary dark:bg-dark-secondary border border-light-border dark:border-dark-border rounded-xl p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-light-bg dark:bg-dark-bg rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                Selecciona el tipo de formulario
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            {formOptions.map((option) => (
+              <label
+                key={option.value}
+                className={`relative flex flex-col p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                  selectedForm === option.value
+                    ? "border-light-primary dark:border-dark-primary bg-light-secondary dark:bg-dark-secondary"
+                    : "border-light-border dark:border-dark-border/30 hover:border-light-primary dark:hover:border-dark-primary"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="formType"
+                  value={option.value}
+                  checked={selectedForm === option.value}
+                  onChange={(e) => onChangeSelectedForm(e.target.value)}
+                  className="sr-only"
+                />
+                <div className="flex items-center gap-2 mb-1">
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      selectedForm === option.value
+                        ? "border-light-primary dark:border-dark-primary bg-light-primary dark:bg-dark-primary"
+                        : "border-light-border dark:border-dark-border"
+                    }`}
+                  >
+                    {selectedForm === option.value && (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {option.label}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-6">
+                  {option.description}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
       )}
 
