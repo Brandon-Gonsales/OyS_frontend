@@ -84,7 +84,6 @@ function ChatView() {
 
     try {
       let chatAfterFileUpload = currentChat;
-      //https://oys-develop.onrender.com/api/extract-json
       if (files && files.length > 0) {
         if (!currentChat.activeContext) {
           throw new Error(
@@ -96,27 +95,17 @@ function ChatView() {
           for (const file of files) {
             formData.append("files", file);
           }
+          formData.append("chatId", currentChat._id);
+          formData.append("documentType", currentChat.activeContext);
           formData.append("formType", selectedForm);
           const { data: fileResponse } = await apiClient.post(
             "/extract-json",
             formData
           );
-          console.log("fileResponse extract-sjon", fileResponse);
-          aiMessage = {
-            sender: "ai",
-            text: `El archivo se ha cargado correctamente: "${fileResponse.procesosFacultad.nombreFacultad}"`,
-            timestamp: new Date().toISOString(),
-            error: false,
-            tempId: Date.now(), // ID temporal para identificar el mensaje
-          };
-          const updatedChatAgent = {
-            ...currentChat,
-            messages: [...currentChat.messages, aiMessage],
-          };
-          setCurrentChat(updatedChatAgent);
-          // chatAfterFileUpload = fileResponse.updatedChat;
-          // setCurrentChat(chatAfterFileUpload);
-          // handleChatUpdate(chatAfterFileUpload);
+          //console.log("fileResponse extract-sjon", fileResponse);
+          chatAfterFileUpload = fileResponse.updatedChat;
+          setCurrentChat(chatAfterFileUpload);
+          handleChatUpdate(chatAfterFileUpload);
         } else {
           const formData = new FormData();
           for (const file of files) {
@@ -128,14 +117,14 @@ function ChatView() {
             "/process-document",
             formData
           );
-          console.log("fileResponse", fileResponse);
+          //console.log("fileResponse chat normal", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
         }
       }
       if (userText.trim()) {
-        console.log("userText", userText);
+        // console.log("userText", userText);
         const historyForApi = [
           ...chatAfterFileUpload.messages,
           { sender: "user", text: userText },
@@ -149,7 +138,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        console.log("data", data);
+        //console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
