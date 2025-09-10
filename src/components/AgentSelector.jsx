@@ -101,6 +101,9 @@ export const AgentSelector = ({
               >
                 {agent.name}
               </span>
+              {selectedAgentId === agent.id && (
+                <div className="ml-1 h-2 w-2 rounded-full bg-current"></div>
+              )}
             </button>
           ))}
         </div>
