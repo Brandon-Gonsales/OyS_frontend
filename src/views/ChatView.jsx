@@ -4,27 +4,36 @@ import MessageInput from "../components/MessageInput";
 import { SidebarChat } from "../components/SidebarChat";
 import apiClient from "../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { Alert } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
+import { AgentSelector } from "../components/AgentSelector";
+import { alert } from "../utils/alert";
+import { useDropzone } from "react-dropzone";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
-function ChatView({ onChatUpdate }) {
+function ChatView() {
   const { chatId } = useParams();
   const [currentChat, setCurrentChat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingSendMessage, setLoadingSendMessage] = useState(false);
   const [error, setError] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
-  let chatEndRef = useRef(null);
+  //let chatEndRef = useRef(null);
   const [sidebarChatCollapsed, setSidebarChatCollapsed] = useState(false);
   const [allChats, setAllChats] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const [selectedAgentId, setSelectedAgentId] = useState(
+    "compatibilizacionFacultades"
+  );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [isDragOverGlobal, setIsDragOverGlobal] = useState(false);
+  const [globalFiles, setGlobalFiles] = useState([]);
+  const messageInputRef = useRef(null);
+  const [selectedForm, setSelectedForm] = useState("form1");
 
   const fetchChat = useCallback(async () => {
     if (!chatId) return;
@@ -44,35 +53,78 @@ function ChatView({ onChatUpdate }) {
     fetchChat();
   }, [fetchChat]);
 
-  const handleSendMessage = async (userText, file) => {
-    if (!currentChat || (!userText.trim() && !file)) return;
+  const handleChatUpdate = (updatedChat) => {
+    setAllChats((prev) =>
+      prev.map((c) => (c._id === updatedChat._id ? updatedChat : c))
+    );
+  };
+
+  const handleSendMessage = async (userText, files) => {
+    if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
+      return;
     setLoadingSendMessage(true);
     setError(null);
+    console.log("allChats", allChats);
+    console.log("current chat", currentChat);
+    const userMessage = {
+      sender: "user",
+      text: userText,
+      timestamp: new Date().toISOString(),
+      error: false,
+      tempId: Date.now(), // ID temporal para identificar el mensaje
+    };
+    let aiMessage = null;
+    if (userText.trim()) {
+      const updatedChat = {
+        ...currentChat,
+        messages: [...currentChat.messages, userMessage],
+      };
+      setCurrentChat(updatedChat);
+    }
 
     try {
       let chatAfterFileUpload = currentChat;
-
-      if (file) {
+      if (files && files.length > 0) {
         if (!currentChat.activeContext) {
           throw new Error(
             "El contexto activo del chat no está definido. No se puede subir el archivo."
           );
         }
-
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("chatId", currentChat._id);
-        formData.append("documentType", currentChat.activeContext);
-        const { data: fileResponse } = await apiClient.post(
-          "/process-document",
-          formData
-        );
-        chatAfterFileUpload = fileResponse.updatedChat;
-        setCurrentChat(chatAfterFileUpload);
-        onChatUpdate(chatAfterFileUpload);
+        if (selectedForm && selectedAgentId === "consolidadoFacultades") {
+          const formData = new FormData();
+          for (const file of files) {
+            formData.append("files", file);
+          }
+          formData.append("chatId", currentChat._id);
+          formData.append("documentType", currentChat.activeContext);
+          formData.append("formType", selectedForm);
+          const { data: fileResponse } = await apiClient.post(
+            "/extract-json",
+            formData
+          );
+          //console.log("fileResponse extract-sjon", fileResponse);
+          chatAfterFileUpload = fileResponse.updatedChat;
+          setCurrentChat(chatAfterFileUpload);
+          handleChatUpdate(chatAfterFileUpload);
+        } else {
+          const formData = new FormData();
+          for (const file of files) {
+            formData.append("files", file);
+          }
+          formData.append("chatId", currentChat._id);
+          formData.append("documentType", currentChat.activeContext);
+          const { data: fileResponse } = await apiClient.post(
+            "/process-document",
+            formData
+          );
+          //console.log("fileResponse chat normal", fileResponse);
+          chatAfterFileUpload = fileResponse.updatedChat;
+          setCurrentChat(chatAfterFileUpload);
+          handleChatUpdate(chatAfterFileUpload);
+        }
       }
-
       if (userText.trim()) {
+        // console.log("userText", userText);
         const historyForApi = [
           ...chatAfterFileUpload.messages,
           { sender: "user", text: userText },
@@ -86,12 +138,13 @@ function ChatView({ onChatUpdate }) {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-
+        //console.log("data", data);
         setCurrentChat(data.updatedChat);
-        onChatUpdate(data.updatedChat);
+        handleChatUpdate(data.updatedChat);
       }
     } catch (err) {
       setError(`Error: ${err.response?.data?.message || err.message}`);
+      alert("error", "ocurrio un error inesperado, intente de nuevo");
     } finally {
       setLoadingSendMessage(false);
     }
@@ -139,63 +192,121 @@ function ChatView({ onChatUpdate }) {
     }
   }, [user, navigate, handleNewChat]);
 
+  const handleAgentChange = (agentId) => {
+    setSelectedAgentId(agentId);
+  };
+
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
 
   const handleDeleteChat = useCallback(
-    async (chatIdToDelete) => {
-      const originalChats = [...allChats];
+    (chatIdToDelete) => {
+      // Eliminar el chat de la lista allChats
       const newChats = allChats.filter((c) => c._id !== chatIdToDelete);
       setAllChats(newChats);
+
+      // Si estamos en el chat que se está eliminando, navegar a otro
       if (window.location.pathname.includes(chatIdToDelete)) {
-        if (newChats.length > 0) navigate(`/chat/${newChats[0]._id}`);
-        else await handleNewChat();
-      }
-      try {
-        await apiClient.delete(`/chats/${chatIdToDelete}`);
-      } catch {
-        setAllChats(originalChats);
+        handleNewChat();
       }
     },
     [allChats, navigate, handleNewChat]
   );
 
-  const handleChatUpdate = (updatedChat) => {
-    setAllChats((prev) =>
-      prev.map((c) => (c._id === updatedChat._id ? updatedChat : c))
-    );
+  const handleChatUpdated = useCallback(
+    (updatedChat) => {
+      // Actualizar el chat en la lista allChats
+      setAllChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat._id === updatedChat._id ? updatedChat : chat
+        )
+      );
+
+      // Si es el chat actual, actualizarlo también
+      if (currentChat && currentChat._id === updatedChat._id) {
+        setCurrentChat(updatedChat);
+      }
+    },
+    [currentChat]
+  );
+
+  const handleError = useCallback((errorMessage) => {
+    setError(errorMessage);
+  }, []);
+
+  //functions para cargar archivos
+  const onGlobalDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 0) {
+      const newFiles = acceptedFiles.map((file) => ({
+        file,
+        id: Math.random().toString(36).substr(2, 9),
+        preview: file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : null,
+      }));
+
+      // Pasar los archivos al MessageInput
+      if (messageInputRef.current) {
+        messageInputRef.current.addFilesFromGlobal(newFiles);
+      }
+    }
+  }, []);
+
+  // Configurar dropzone global
+  const {
+    getRootProps: getGlobalRootProps,
+    getInputProps: getGlobalInputProps,
+    isDragActive: isGlobalDragActive,
+  } = useDropzone({
+    onDrop: onGlobalDrop,
+    multiple: true,
+    noClick: true,
+    noKeyboard: true,
+    onDragEnter: () => setIsDragOverGlobal(true),
+    onDragLeave: (e) => {
+      // Solo ocultar si realmente salimos del área completa
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        setIsDragOverGlobal(false);
+      }
+    },
+    onDropAccepted: () => setIsDragOverGlobal(false),
+    onDropRejected: () => setIsDragOverGlobal(false),
+  });
+
+  const onChangeSelectedForm = (typeForm) => {
+    setSelectedForm(typeForm);
   };
-
   // Error state
-  if (error) {
-    return (
-      <div className="p-4">
-        <Alert severity="error">{error}</Alert>
-      </div>
-    );
-  }
-
-  console.log(currentChat);
-
-  // No chat selected state
-  // if (!currentChat) {
-  //   return (
-  //     <div className="p-6">
-  //       <p className="text-gray-600 dark:text-gray-400">
-  //         Selecciona un chat para comenzar.
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
+    <div
+      {...getGlobalRootProps()}
+      className="h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg relative"
+    >
+      <input {...getGlobalInputProps()} />
+
+      {/* Overlay global de drag & drop */}
+      {(isGlobalDragActive || isDragOverGlobal) && (
+        <div className="fixed inset-0 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 flex items-center justify-center z-50">
+          <div className="text-center bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+              <AttachFileIcon className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Suelta los archivos aquí
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Los archivos se agregarán al mensaje
+            </p>
+          </div>
+        </div>
+      )}
       <div className="relative flex h-full w-full">
         {/* overlaysideabr */}
         {!sidebarChatCollapsed && (
           <div
-            className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
             onClick={toggleChatSidebar}
           ></div>
         )}
@@ -209,30 +320,38 @@ function ChatView({ onChatUpdate }) {
           setActiveChatId={setActiveChatId}
           sidebarChatCollapsed={sidebarChatCollapsed}
           logo={null}
+          onChatUpdated={handleChatUpdated}
+          onError={handleError}
         />
-
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Chat Section */}
           <div className="relative h-full flex-1 overflow-hidden">
             <div className="flex h-full w-full flex-col">
               {/* Header chat mobile */}
-              <div className="flex w-full items-center justify-between bg-light-bg_h px-4 py-3 lg:hidden dark:bg-dark-bg_h">
+              <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
+                <div className="flex items-center gap-2">
+                  <AgentSelector
+                    selectedAgentId={selectedAgentId}
+                    onAgentChange={handleAgentChange}
+                  />
+                  <button
+                    onClick={handleNewChat}
+                    className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                    aria-label="Nuevo chat"
+                  >
+                    <EditIcon className="h-6 w-6" />
+                  </button>
+                </div>
+
                 <button
                   onClick={toggleChatSidebar}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
+                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                 >
                   <MenuIcon className="h-6 w-6 " />
                 </button>
-                <button
-                  onClick={handleNewChat}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
-                  aria-label="Nuevo chat"
-                >
-                  <EditIcon className="h-6 w-6" />
-                </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6">
+              <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6 scroll-smooth">
                 <div className="mx-auto max-w-4xl space-y-6">
                   {currentChat?.messages.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
@@ -240,7 +359,7 @@ function ChatView({ onChatUpdate }) {
                         ¡Hola! ¿En qué puedo ayudarte?
                       </h3>
                       <p className="max-w-md text-base text-light-two md:text-lg dark:text-dark-primary">
-                        Escribe tu mensaje para comenzar una conversación
+                        Vamos! Inicia una conversación
                       </p>
                     </div>
                   )}
@@ -264,22 +383,23 @@ function ChatView({ onChatUpdate }) {
                       </div>
                     </div>
                   )}
-
-                  <div ref={chatEndRef}></div>
                 </div>
               </div>
 
               {/* Input Area */}
               <div className="w-full px-1 pb-2 md:px-6 lg:mb-0">
-                {/* <InputArea
-							{handleSendMessage}
-							{isLoading}
-							{autoResizeTextarea}
-							class="mx-auto max-w-4xl"
-						/> */}
                 <MessageInput
+                  // onSendMessage={handleSendMessage}
+                  // loading={loadingSendMessage}
+                  // error={error}
+                  ref={messageInputRef}
                   onSendMessage={handleSendMessage}
-                  loading={loading}
+                  loading={loadingSendMessage}
+                  error={error}
+                  disableGlobalDrop={isGlobalDragActive || isDragOverGlobal}
+                  selectedAgentId={selectedAgentId}
+                  selectedForm={selectedForm}
+                  onChangeSelectedForm={onChangeSelectedForm}
                 />
               </div>
             </div>
