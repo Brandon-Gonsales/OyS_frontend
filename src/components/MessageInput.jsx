@@ -167,6 +167,7 @@ function MessageInput(
     { value: "form1", label: "Formulario 1" },
     { value: "form2", label: "Formulario 2" },
     { value: "form3", label: "Formulario 3" },
+    { value: "extra", label: "Extra" },
   ];
 
   return (
