@@ -234,12 +234,12 @@ function MessageInput(
       )}
       {/* Selector de formularios - Solo visible cuando es necesario */}
       {showFormSelector && (
-        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border p-2 mb-2 w-fit">
+        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-4 w-fit">
           <div className="flex items-center gap-2 text-xs text-light-primary dark:text-dark-primary mb-2">
             <DescriptionIcon size={12} />
             <span>Seleccionar Formulario:</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 md:gap-2">
             {formOptions.map((option) => (
               <button
                 key={option.value + "_mini"}

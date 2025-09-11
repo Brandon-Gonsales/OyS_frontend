@@ -274,7 +274,7 @@ function ChatView() {
     onDropAccepted: () => setIsDragOverGlobal(false),
     onDropRejected: () => setIsDragOverGlobal(false),
   });
-  console.log("currentChat", currentChat._id);
+  //console.log("currentChat", currentChat._id);
   const onChangeSelectedForm = (typeForm) => {
     setSelectedForm(typeForm);
   };
