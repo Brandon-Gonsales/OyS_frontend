@@ -64,9 +64,8 @@ function ChatView() {
       return;
     setLoadingSendMessage(true);
     setError(null);
-    window.alert("sendmessage");
-    console.log("allChats", allChats);
-    console.log("current chat", currentChat);
+    // console.log("allChats", allChats);
+    // console.log("current chat", currentChat);
     const userMessage = {
       sender: "user",
       text: userText,
@@ -290,7 +289,7 @@ function ChatView() {
           chatId: currentChat._id,
         }
       );
-      console.log("generateReportResponse", generateReportResponse);
+      //console.log("generateReportResponse", generateReportResponse);
       setCurrentChat(generateReportResponse.updatedChat);
       handleChatUpdate(generateReportResponse.updatedChat);
     } catch (err) {
