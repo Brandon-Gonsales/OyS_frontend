@@ -64,6 +64,7 @@ function ChatView() {
       return;
     setLoadingSendMessage(true);
     setError(null);
+    window.alert("sendmessage");
     console.log("allChats", allChats);
     console.log("current chat", currentChat);
     const userMessage = {
@@ -273,9 +274,31 @@ function ChatView() {
     onDropAccepted: () => setIsDragOverGlobal(false),
     onDropRejected: () => setIsDragOverGlobal(false),
   });
-
+  console.log("currentChat", currentChat._id);
   const onChangeSelectedForm = (typeForm) => {
     setSelectedForm(typeForm);
+  };
+
+  const handleCompatibilizar = async () => {
+    try {
+      //window.alert("compatibilizar");
+      console.log("currentChat en handleCompatibilizar:", currentChat);
+      setLoadingSendMessage(true);
+      const { data: generateReportResponse } = await apiClient.post(
+        "/generate-report",
+        {
+          chatId: currentChat._id,
+        }
+      );
+      console.log("generateReportResponse", generateReportResponse);
+      setCurrentChat(generateReportResponse.updatedChat);
+      handleChatUpdate(generateReportResponse.updatedChat);
+    } catch (err) {
+      setError(`Error: ${err}`);
+      alert("error", "ocurrio un error inesperado, intente de nuevo");
+    } finally {
+      setLoadingSendMessage(false);
+    }
   };
   // Error state
 
@@ -400,6 +423,7 @@ function ChatView() {
                   selectedAgentId={selectedAgentId}
                   selectedForm={selectedForm}
                   onChangeSelectedForm={onChangeSelectedForm}
+                  onChangeCompatibilizar={handleCompatibilizar}
                 />
               </div>
             </div>

@@ -12,6 +12,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { Check, Upload } from "@mui/icons-material";
+import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
 
 function MessageInput(
   {
@@ -22,6 +25,7 @@ function MessageInput(
     selectedAgentId,
     selectedForm,
     onChangeSelectedForm,
+    onChangeCompatibilizar,
   },
   ref
 ) {
@@ -161,6 +165,7 @@ function MessageInput(
     }
   };
   // Determinar si mostrar el selector de formularios
+  const showCompatibilizar = selectedAgentId === "consolidadoFacultades";
   const showFormSelector =
     selectedAgentId === "consolidadoFacultades" && files.length > 0;
   const formOptions = [
@@ -169,6 +174,10 @@ function MessageInput(
     { value: "form3", label: "Formulario 3" },
     { value: "extra", label: "Extra" },
   ];
+
+  const handleCompatibilizar = () => {
+    onChangeCompatibilizar();
+  };
 
   return (
     <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
@@ -225,67 +234,27 @@ function MessageInput(
       )}
       {/* Selector de formularios - Solo visible cuando es necesario */}
       {showFormSelector && (
-        <div className="bg-light-secondary w-fit dark:bg-dark-secondary border border-light-border dark:border-dark-border rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-light-bg dark:bg-dark-bg rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg
-                className="w-4 h-4 text-light-accent dark:text-dark-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                Selecciona el tipo de formulario
-              </h3>
-            </div>
+        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border p-2 mb-2 w-fit">
+          <div className="flex items-center gap-2 text-xs text-light-primary dark:text-dark-primary mb-2">
+            <DescriptionIcon size={12} />
+            <span>Seleccionar Formulario:</span>
           </div>
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex gap-1">
             {formOptions.map((option) => (
-              <label
-                key={option.value}
-                className={`flex items-center gap-3 p-2 rounded border cursor-pointer transition-colors ${
+              <button
+                key={option.value + "_mini"}
+                onClick={() => onChangeSelectedForm(option.value)}
+                className={`px-2 py-1 text-xs rounded-md border transition-all ${
                   selectedForm === option.value
-                    ? "border-light-primary dark:border-dark-primary bg-light-secondary dark:bg-dark-secondary"
-                    : "border-light-border dark:border-dark-border hover:border-light-primary dark:hover:border-dark-primary"
+                    ? "border-light-border dark:border-dark-border bg-light-secondary dark:bg-dark-secondary text-light-bg dark:text-dark-primary"
+                    : "border-light-border_h dark:border-dark-border_h text-light-primary_h dark:text-dark-primary_h hover:border-light-border_h dark:hover:border-dark-border_h"
                 }`}
               >
-                <input
-                  type="radio"
-                  name="formType"
-                  value={option.value}
-                  checked={selectedForm === option.value}
-                  onChange={(e) => onChangeSelectedForm(e.target.value)}
-                  className="sr-only"
-                />
-                <div
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    selectedForm === option.value
-                      ? "border-light-primary dark:border-dark-primary bg-light-primary dark:bg-dark-primary"
-                      : "border-light-border dark:border-dark-border"
-                  }`}
-                >
-                  {selectedForm === option.value && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {option.label}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {option.description}
-                  </div>
-                </div>
-              </label>
+                {selectedForm === option.value && (
+                  <Check size={10} className="inline mr-1" strokeWidth={3} />
+                )}
+                {option.label}
+              </button>
             ))}
           </div>
         </div>
@@ -322,7 +291,6 @@ function MessageInput(
             <div className="relative" ref={optionsRef}>
               <button
                 onClick={() => setShowOptions(!showOptions)}
-                disabled={loading}
                 className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
                   showOptions
                     ? "bg-light-secondary text-white shadow-md"
@@ -340,23 +308,47 @@ function MessageInput(
 
               {/* Menú de opciones */}
               {showOptions && (
-                <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden min-w-[180px] z-30">
+                <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg_h rounded-lg shadow-lg border border-light-border dark:border-dark-border overflow-hidden min-w-[200px] z-30">
                   <button
                     onClick={handleFileSelect}
-                    className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                    className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                   >
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <AttachFileIcon />
+                    <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                      <Upload
+                        size={14}
+                        className="text-light-primary dark:text-dark-primary"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
                         Subir archivo
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Arrastra o selecciona
                       </p>
                     </div>
                   </button>
+
+                  {showCompatibilizar && (
+                    <button
+                      onClick={handleCompatibilizar}
+                      type="button"
+                      disabled={loading}
+                      className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                        <OfflineBoltIcon
+                          size={14}
+                          className="text-light-primary dark:text-dark-primary"
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-row min-w-0">
+                        <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                          Compatibilizar
+                        </p>
+                        {loading && (
+                          <div className="animate-spin rounded-full h-5 w-5 ml-3 border-b-2 border-current"></div>
+                        )}
+                      </div>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
