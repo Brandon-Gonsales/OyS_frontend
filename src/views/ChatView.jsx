@@ -138,7 +138,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        //console.log("data", data);
+        console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -149,7 +149,7 @@ function ChatView() {
       setLoadingSendMessage(false);
     }
   };
-
+  console.log("currentChat", currentChat);
   const toggleChatSidebar = () => {
     setSidebarChatCollapsed(!sidebarChatCollapsed);
   };
