@@ -7,7 +7,9 @@ export const AgentSelector = ({
   onAgentChange = () => {},
   agents = [
     { id: "compatibilizacionFacultades", name: "Chat" },
-    { id: "consolidadoFacultades", name: "Comp Facul" },
+    { id: "compatibilizacion", name: "Compatibilizacion" },
+    { id: "MOF", name: "MOF" },
+    { id: "normativas", name: "Normativas" },
     // { id: "compatibilizacionAdministrativo", name: "Comp Adm" },
     // { id: "consolidadoAdministrativo", name: "Consolidado Facul" },
     // { id: "miscellaneous", name: "Consolidado Adm" },
