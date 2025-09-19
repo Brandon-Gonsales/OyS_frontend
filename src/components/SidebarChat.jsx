@@ -40,18 +40,9 @@ export const SidebarChat = ({
     navigate(`/chat/${chatIdParam}`);
   };
 
-  const handleDeleteClick = (e, chatIdParam) => {
-    e.stopPropagation();
-    handleDeleteChat(chatIdParam);
-  };
-
   const handleChatDeleted = (deletedChatId) => {
     // Llamar a la función original del padre
     handleDeleteChat(deletedChatId);
-  };
-
-  const handleChatUpdated = (updatedChat) => {
-    onChatUpdated(updatedChat);
   };
 
   return (
@@ -70,7 +61,7 @@ export const SidebarChat = ({
                 <span
                   className={`${
                     logo && "ml-2"
-                  } font-semibold text-light-primary dark:text-dark-primary`}
+                  } font-semibold text-light-primary dark:text-dark-primary truncate`}
                 >
                   Asistente OyS
                 </span>
@@ -103,7 +94,7 @@ export const SidebarChat = ({
                 placeholder="Buscar chats..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full dark:bg-dark-secondary pl-10 pr-4 py-3 border border-light-border shadow-md dark:border-dark-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-transparent placeholder-gray-500 dark:placeholder-gray-400 transition-colors text-light-primary dark:text-dark-primary"
+                className="w-full dark:bg-dark-bg_h pl-10 pr-4 py-3 border border-slate-200 dark:border-dark-border/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-light-border dark:focus:ring-dark-border focus:border-transparent placeholder-gray-500 dark:placeholder-gray-400 transition-colors text-light-primary dark:text-dark-primary"
               />
             </div>
           </div>
