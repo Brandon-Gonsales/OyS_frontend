@@ -411,9 +411,6 @@ function ChatView() {
               {/* Input Area */}
               <div className="w-full px-1 pb-2 md:px-6 lg:mb-0">
                 <MessageInput
-                  // onSendMessage={handleSendMessage}
-                  // loading={loadingSendMessage}
-                  // error={error}
                   ref={messageInputRef}
                   onSendMessage={handleSendMessage}
                   loading={loadingSendMessage}
