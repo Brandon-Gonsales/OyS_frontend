@@ -282,12 +282,12 @@ function MessageInput(
                 onClick={() => setShowOptions(!showOptions)}
                 className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
                   showOptions
-                    ? "bg-light-secondary text-white shadow-md"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+                    ? "bg-light-secondary text-light-bg dark:text-dark-primary shadow-md"
+                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <div
-                  className={`transform transition-transform duration-200 ${
+                  className={`transform transition-transform duration-200  ${
                     showOptions ? "rotate-45" : ""
                   }`}
                 >
@@ -296,7 +296,7 @@ function MessageInput(
               </button>
 
               {showOptions && (
-                <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg_h rounded-lg shadow-lg border border-light-border dark:border-dark-border overflow-hidden min-w-[200px] z-30">
+                <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
                   <button
                     onClick={handleFileSelect}
                     className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"

@@ -60,7 +60,7 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
           <div className="" role="none">
             {/* User Info Section */}
             <div className="px-4 py-2 text-sm text-light-primary dark:text-dark-primary flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-light-secondary dark:bg-dark-secondary text-light-bg dark:text-dark-bg flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-full bg-light-secondary dark:bg-dark-primary text-light-bg dark:text-dark-bg flex items-center justify-center font-bold">
                 {userInitials}
               </div>
               <span className="font-semibold">{userName}</span>
@@ -76,7 +76,7 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
             >
               {isDarkMode ? (
                 <>
-                  <LightModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+                  <LightModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-primary" />
                   <span className="text-light-primary dark:text-dark-primary">
                     {" "}
                     Modo Claro
@@ -84,7 +84,7 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
                 </>
               ) : (
                 <>
-                  <DarkModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+                  <DarkModeIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-primary" />
                   <span className="text-light-primary dark:text-dark-primary">
                     {" "}
                     Modo Oscuro
@@ -94,10 +94,10 @@ const UserProfile = ({ userName, onLogout, toggleDarkMode, isDarkMode }) => {
             </button>
             <button
               onClick={onLogout}
-              className="group flex w-full items-center px-4 py-2 text-sm text-light-secondary transition-colors duration-200 hover:bg-light-border hover:dark:bg-dark-bg_h"
+              className="group flex w-full items-center px-4 py-2 text-sm text-light-primary transition-colors duration-200 hover:bg-light-border hover:dark:bg-dark-bg_h"
               role="menuitem"
             >
-              <LogoutIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-secondary" />
+              <LogoutIcon className="mr-2 h-5 w-5 text-light-secondary dark:text-dark-primary" />
               <span className="text-light-primary dark:text-dark-primary">
                 {" "}
                 Salir
