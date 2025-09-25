@@ -3,12 +3,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { chatService } from "../services/chat-service";
-import apiClient from "../api/axios";
 import { alert } from "../utils/alert";
 
-// ============================================
-// MODAL CONFIRM REUTILIZABLE
-// ============================================
 const ModalConfirm = ({
   isOpen,
   onClose,
@@ -112,9 +108,6 @@ const ModalConfirm = ({
   );
 };
 
-// ============================================
-// MODAL EDIT CHAT TITLE
-// ============================================
 const EditChatModal = ({
   isOpen,
   onClose,
@@ -228,9 +221,6 @@ const EditChatModal = ({
   );
 };
 
-// ============================================
-// DROPDOWN MENU PARA OPCIONES DE CHAT
-// ============================================
 const ChatOptionsDropdown = ({
   isOpen,
   onClose,
@@ -291,9 +281,6 @@ const ChatOptionsDropdown = ({
   );
 };
 
-// ============================================
-// HOOK PERSONALIZADO PARA CHAT ACTIONS
-// ============================================
 const useChatActions = (onChatUpdated, onChatDeleted, onError) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -346,9 +333,6 @@ const useChatActions = (onChatUpdated, onChatDeleted, onError) => {
   };
 };
 
-// ============================================
-// COMPONENTE DE CHAT ITEM MODIFICADO
-// ============================================
 const ChatItem = ({
   chat,
   isActive,

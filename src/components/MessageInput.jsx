@@ -101,7 +101,6 @@ function MessageInput(
     setMessage("");
     setFiles([]);
 
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -164,7 +163,6 @@ function MessageInput(
         Math.min(textareaRef.current.scrollHeight, 120) + "px";
     }
   };
-  // Determinar si mostrar el selector de formularios
   const showCompatibilizar = selectedAgentId === "consolidadoFacultades";
   const showFormSelector =
     selectedAgentId === "consolidadoFacultades" && files.length > 0;
@@ -181,7 +179,6 @@ function MessageInput(
 
   return (
     <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
-      {/* Archivos cargados - Estilo Claude */}
       {files.length > 0 && (
         <div className="flex flex-wrap gap-3">
           {files.map((fileObj) => (
@@ -189,7 +186,6 @@ function MessageInput(
               key={fileObj.id}
               className="relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
             >
-              {/* Vista previa del archivo */}
               <div className="w-24 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-900 relative">
                 {fileObj.preview ? (
                   <img
@@ -203,7 +199,6 @@ function MessageInput(
                   </div>
                 )}
 
-                {/* Botón de eliminar */}
                 <button
                   onClick={() => removeFile(fileObj.id)}
                   className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -212,7 +207,6 @@ function MessageInput(
                 </button>
               </div>
 
-              {/* Información del archivo */}
               <div className="p-2 border-t border-gray-100 dark:border-gray-700">
                 <p
                   className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate"
@@ -232,7 +226,6 @@ function MessageInput(
           ))}
         </div>
       )}
-      {/* Selector de formularios - Solo visible cuando es necesario */}
       {showFormSelector && (
         <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-4 w-fit">
           <div className="flex items-center gap-2 text-xs text-light-primary dark:text-dark-primary mb-2">
@@ -260,7 +253,6 @@ function MessageInput(
         </div>
       )}
 
-      {/* Input principal con drag & drop */}
       <div className="relative">
         <div
           {...getRootProps()}
@@ -271,8 +263,6 @@ function MessageInput(
           }`}
         >
           <input {...getInputProps()} />
-
-          {/* Overlay de drag & drop */}
           {(isDragActive || isDragOver) && (
             <div className="absolute inset-0 bg-blue-500/10 border-2 border-dashed border-blue-500 rounded-2xl flex items-center justify-center z-20">
               <div className="text-center">
@@ -287,7 +277,6 @@ function MessageInput(
           )}
 
           <div className="flex items-end p-3 gap-3">
-            {/* Botón de opciones */}
             <div className="relative" ref={optionsRef}>
               <button
                 onClick={() => setShowOptions(!showOptions)}
@@ -306,7 +295,6 @@ function MessageInput(
                 </div>
               </button>
 
-              {/* Menú de opciones */}
               {showOptions && (
                 <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg_h rounded-lg shadow-lg border border-light-border dark:border-dark-border overflow-hidden min-w-[200px] z-30">
                   <button
@@ -353,7 +341,6 @@ function MessageInput(
               )}
             </div>
 
-            {/* Campo de texto */}
             <div className="flex-1">
               <textarea
                 ref={textareaRef}
@@ -371,7 +358,6 @@ function MessageInput(
               />
             </div>
 
-            {/* Botón de envío */}
             <button
               onClick={handleSend}
               disabled={loading || (!message.trim() && files.length === 0)}
@@ -390,8 +376,6 @@ function MessageInput(
           </div>
         </div>
       </div>
-
-      {/* Input file oculto */}
       <input
         ref={fileInputRef}
         type="file"

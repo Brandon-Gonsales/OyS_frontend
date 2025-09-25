@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 
-// Componente skeleton para un mensaje individual
 const MessageSkeleton = ({ isUser }) => {
   return (
     <div
@@ -24,7 +23,6 @@ const MessageSkeleton = ({ isUser }) => {
             }`}
           >
             {isUser ? (
-              // Skeleton para mensaje de usuario
               <div className="text-base sm:text-lg">
                 <div className="h-4 sm:h-5 bg-gray-300 dark:bg-gray-600 rounded w-32 sm:w-48 mb-1"></div>
                 {Math.random() > 0.5 && (
@@ -32,14 +30,12 @@ const MessageSkeleton = ({ isUser }) => {
                 )}
               </div>
             ) : (
-              // Skeleton para mensaje del bot
               <div>
                 <div className="space-y-3 w-[200px]">
                   <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-full max-w-md"></div>
                   <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-5/6 max-w-sm"></div>
                   <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-4/5 max-w-lg"></div>
 
-                  {/* Simular párrafos adicionales ocasionalmente */}
                   {Math.random() > 0.4 && (
                     <div className="space-y-2 mt-4">
                       <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 max-w-xs"></div>
@@ -59,7 +55,6 @@ const MessageSkeleton = ({ isUser }) => {
   );
 };
 
-// Componente principal del skeleton de chat
 export const ChatSkeleton = ({ messageCount = 6 }) => {
   const messagesEndRef = useRef(null);
 
@@ -67,11 +62,9 @@ export const ChatSkeleton = ({ messageCount = 6 }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Generar array de mensajes alternando usuario/bot
   const generateMessages = (count) => {
     const messages = [];
     for (let i = 0; i < count; i++) {
-      // Empezar con usuario (índice par = usuario, impar = bot)
       messages.push({
         id: i,
         isUser: i % 2 === 0,

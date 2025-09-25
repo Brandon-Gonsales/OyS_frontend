@@ -4,12 +4,11 @@ import { useRef, useEffect } from "react";
 export const MessageList = ({ conversation, loading, onCopy }) => {
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
-    // Usar setTimeout para asegurar que el DOM se actualice antes del scroll
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ 
+      messagesEndRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "end",
-        inline: "nearest"
+        inline: "nearest",
       });
     }, 100);
   };
@@ -17,7 +16,6 @@ export const MessageList = ({ conversation, loading, onCopy }) => {
     scrollToBottom();
   }, [conversation, loading]);
 
-  // Scroll adicional cuando cambia el loading state
   useEffect(() => {
     if (loading) {
       scrollToBottom();
@@ -66,7 +64,7 @@ export const MessageList = ({ conversation, loading, onCopy }) => {
           </div>
         );
       })}
-      <div ref={messagesEndRef} style={{ height: '1px' }} />
+      <div ref={messagesEndRef} style={{ height: "1px" }} />
     </div>
   );
 };
