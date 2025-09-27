@@ -49,6 +49,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
         await handleNewChat();
       }
     } catch (err) {
+      //window.location.href = "/login";
       setError("No se pudieron cargar los chats.");
     } finally {
       setLoading(false);

@@ -9,6 +9,7 @@ apiClient.interceptors.request.use(
   (config) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      console.log("userInfo", userInfo);
       if (userInfo && userInfo.token) {
         config.headers['Authorization'] = `Bearer ${userInfo.token}`;
       }
