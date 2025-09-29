@@ -36,8 +36,11 @@ function AppLogic({ darkMode, toggleDarkMode }) {
     setLoading(true);
     setError(null);
     try {
+      //window.alert("fetchChats");
+      console.log("user: ", user);
       const { data } = await apiClient.get("/chats");
       setAllChats(data);
+      console.log("data: ", data);
       if (data.length > 0) {
         if (
           window.location.pathname === "/" ||
@@ -51,6 +54,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
     } catch (err) {
       setError("No se pudieron cargar los chats.");
     } finally {
+      console.log("⏱️ La petición finalizó (éxito o error).");
       setLoading(false);
     }
   }, [user, navigate, handleNewChat]);

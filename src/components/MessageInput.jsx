@@ -44,7 +44,7 @@ function MessageInput(
   }));
   // Resetear el form seleccionado cuando cambien las condiciones
   useEffect(() => {
-    if (selectedAgentId !== "consolidadoFacultades" || files.length === 0) {
+    if (selectedAgentId !== "compatibilizacion" || files.length === 0) {
       onChangeSelectedForm("form1");
     }
   }, [selectedAgentId, files.length, onChangeSelectedForm]);
@@ -163,9 +163,9 @@ function MessageInput(
         Math.min(textareaRef.current.scrollHeight, 120) + "px";
     }
   };
-  const showCompatibilizar = selectedAgentId === "consolidadoFacultades";
+  const showCompatibilizar = selectedAgentId === "compatibilizacion";
   const showFormSelector =
-    selectedAgentId === "consolidadoFacultades" && files.length > 0;
+    selectedAgentId === "compatibilizacion" && files.length > 0;
   const formOptions = [
     { value: "form1", label: "Formulario 1" },
     { value: "form2", label: "Formulario 2" },
@@ -226,7 +226,7 @@ function MessageInput(
           ))}
         </div>
       )}
-      {showFormSelector && (
+      {selectedAgentId === "compatibilizacion" && files.length > 0 && (
         <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-4 w-fit">
           <div className="flex items-center gap-2 text-xs text-light-primary dark:text-dark-primary mb-2">
             <DescriptionIcon size={12} />
@@ -251,6 +251,121 @@ function MessageInput(
             ))}
           </div>
         </div>
+      )}
+
+      {selectedAgentId === "MOF" && showOptions && (
+        <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
+          <button
+            onClick={handleFileSelect}
+            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+          >
+            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+              <Upload
+                size={14}
+                className="text-light-primary dark:text-dark-primary"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                Subir archivo
+              </p>
+            </div>
+          </button>
+
+          {showCompatibilizar && (
+            <button
+              onClick={handleCompatibilizar}
+              type="button"
+              disabled={loading}
+              className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                <OfflineBoltIcon
+                  size={14}
+                  className="text-light-primary dark:text-dark-primary"
+                />
+              </div>
+              <div className="flex-1 flex flex-row min-w-0">
+                <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                  Compatibilizar
+                </p>
+                {loading && (
+                  <div className="animate-spin rounded-full h-5 w-5 ml-3 border-b-2 border-current"></div>
+                )}
+              </div>
+            </button>
+          )}
+        </div>
+        // <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-4 w-fit">
+        //   <div className="flex gap-1 md:gap-2">
+        //     <button
+        //       onClick={handleFileSelect}
+        //       className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        //     >
+        //       <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+        //         <Upload
+        //           size={14}
+        //           className="text-light-primary dark:text-dark-primary"
+        //         />
+        //       </div>
+        //       <div className="flex-1 min-w-0">
+        //         <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+        //           Subir archivo
+        //         </p>
+        //       </div>
+        //     </button>
+
+        //     <button
+        //       onClick={handleFileSelect}
+        //       className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        //     >
+        //       <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+        //         <Upload
+        //           size={14}
+        //           className="text-light-primary dark:text-dark-primary"
+        //         />
+        //       </div>
+        //       <div className="flex-1 min-w-0">
+        //         <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+        //           MOF Pro
+        //         </p>
+        //       </div>
+        //     </button>
+
+        //     <button
+        //       onClick={handleFileSelect}
+        //       className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        //     >
+        //       <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+        //         <Upload
+        //           size={14}
+        //           className="text-light-primary dark:text-dark-primary"
+        //         />
+        //       </div>
+        //       <div className="flex-1 min-w-0">
+        //         <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+        //           MOF Flash
+        //         </p>
+        //       </div>
+        //     </button>
+        //     <button
+        //       onClick={handleFileSelect}
+        //       className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        //     >
+        //       <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+        //         <Upload
+        //           size={14}
+        //           className="text-light-primary dark:text-dark-primary"
+        //         />
+        //       </div>
+        //       <div className="flex-1 min-w-0">
+        //         <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+        //           MOF validar archivo
+        //         </p>
+        //       </div>
+        //     </button>
+        //   </div>
+        // </div>
       )}
 
       <div className="relative">
@@ -295,7 +410,7 @@ function MessageInput(
                 </div>
               </button>
 
-              {showOptions && (
+              {showOptions && selectedAgentId !== "MOF" && (
                 <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
                   <button
                     onClick={handleFileSelect}
