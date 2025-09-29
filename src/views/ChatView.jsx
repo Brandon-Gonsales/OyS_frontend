@@ -99,7 +99,7 @@ function ChatView() {
           formData.append("documentType", currentChat.activeContext);
           formData.append("formType", selectedForm);
           const { data: fileResponse } = await apiClient.post(
-            "/extract-json",
+            "/chats/extract-json",
             formData
           );
           //console.log("fileResponse extract-sjon", fileResponse);
@@ -114,7 +114,7 @@ function ChatView() {
           formData.append("chatId", currentChat._id);
           formData.append("documentType", currentChat.activeContext);
           const { data: fileResponse } = await apiClient.post(
-            "/process-document",
+            "/chats/process-document",
             formData
           );
           //console.log("fileResponse chat normal", fileResponse);
@@ -133,7 +133,7 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/chat", {
+        const { data } = await apiClient.post("/chats/message", {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
@@ -285,10 +285,8 @@ function ChatView() {
       console.log("currentChat en handleCompatibilizar:", currentChat);
       setLoadingSendMessage(true);
       const { data: generateReportResponse } = await apiClient.post(
-        "/generate-report",
-        {
-          chatId: currentChat._id,
-        }
+        "/chats/generate-report", // <-- CORREGIDO
+        { chatId: currentChat._id }
       );
       //console.log("generateReportResponse", generateReportResponse);
       setCurrentChat(generateReportResponse.updatedChat);
