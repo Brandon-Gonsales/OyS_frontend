@@ -102,7 +102,7 @@ function ChatView() {
             "/chats/extract-json",
             formData
           );
-          //console.log("fileResponse extract-sjon", fileResponse);
+          console.log("fileResponse extract-sjon", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -133,7 +133,7 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/chats/message", {
+        const { data } = await apiClient.post("/chats", {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
