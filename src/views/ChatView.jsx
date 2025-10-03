@@ -64,8 +64,6 @@ function ChatView() {
       return;
     setLoadingSendMessage(true);
     setError(null);
-    // console.log("allChats", allChats);
-    // console.log("current chat", currentChat);
     const userMessage = {
       sender: "user",
       text: userText,
@@ -73,7 +71,6 @@ function ChatView() {
       error: false,
       tempId: Date.now(), // ID temporal para identificar el mensaje
     };
-    let aiMessage = null;
     if (userText.trim()) {
       const updatedChat = {
         ...currentChat,
@@ -99,10 +96,10 @@ function ChatView() {
           formData.append("documentType", currentChat.activeContext);
           formData.append("formType", selectedForm);
           const { data: fileResponse } = await apiClient.post(
-            "/chats/extract-json",
+            "/extract-json",
             formData
           );
-          console.log("fileResponse extract-sjon", fileResponse);
+          //console.log("fileResponse extract-sjon", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -114,7 +111,7 @@ function ChatView() {
           formData.append("chatId", currentChat._id);
           formData.append("documentType", currentChat.activeContext);
           const { data: fileResponse } = await apiClient.post(
-            "/chats/process-document",
+            "/process-document",
             formData
           );
           //console.log("fileResponse chat normal", fileResponse);
@@ -133,12 +130,12 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/chats", {
+        const { data } = await apiClient.post("/chat", {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        console.log("data", data);
+        //console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -149,7 +146,7 @@ function ChatView() {
       setLoadingSendMessage(false);
     }
   };
-  console.log("currentChat", currentChat);
+
   const toggleChatSidebar = () => {
     setSidebarChatCollapsed(!sidebarChatCollapsed);
   };
@@ -193,7 +190,6 @@ function ChatView() {
   }, [user, navigate, handleNewChat]);
 
   const handleAgentChange = (agentId) => {
-    console.log("agentId", agentId);
     setSelectedAgentId(agentId);
   };
 
@@ -281,14 +277,11 @@ function ChatView() {
 
   const handleCompatibilizar = async () => {
     try {
-      //window.alert("compatibilizar");
-      console.log("currentChat en handleCompatibilizar:", currentChat);
       setLoadingSendMessage(true);
       const { data: generateReportResponse } = await apiClient.post(
         "/chats/generate-report", // <-- CORREGIDO
         { chatId: currentChat._id }
       );
-      //console.log("generateReportResponse", generateReportResponse);
       setCurrentChat(generateReportResponse.updatedChat);
       handleChatUpdate(generateReportResponse.updatedChat);
     } catch (err) {
@@ -298,7 +291,6 @@ function ChatView() {
       setLoadingSendMessage(false);
     }
   };
-  // Error state
 
   return (
     <div

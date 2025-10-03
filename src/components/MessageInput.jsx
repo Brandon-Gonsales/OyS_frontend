@@ -46,6 +46,7 @@ function MessageInput(
   const [selectedMofForm, setSelectedMofForm] = useState(null);
   const optionsRef = useRef(null);
   const textareaRef = useRef(null);
+  const [isShowConsolidado, setIsShowConsolidado] = useState(false);
 
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
@@ -153,9 +154,12 @@ function MessageInput(
       });
     });
 
-    onSendMessage("Enviando archivos MOF", allFiles);
+    //maton aqui podes llamar al enpoint para subir los files
+    //luego el response que devolvera el endpoint de enviar archivos compatibilizaciones lo mandas a onSendMessage
 
-    // Reset MOF state
+    //onSendMessage("response.text="Archivos cargados correctamente", allFiles)
+
+    // Reset compatibilizacion forms state
     setMofFiles({
       form1: [],
       form2: [],
@@ -166,6 +170,7 @@ function MessageInput(
   };
 
   const handleMofCancel = () => {
+    setIsShowConsolidado(false);
     handleShowCompatibilizacion();
     Object.values(mofFiles)
       .flat()
@@ -298,13 +303,18 @@ function MessageInput(
     setShowCompatibilizar(!showCompatibilizar);
   };
 
+  const handleShowConsolidado = () => {
+    handleShowCompatibilizacion();
+    setIsShowConsolidado(!isShowConsolidado);
+  };
+
   const showFormSelector =
     selectedAgentId === "compatibilizacion" && files.length > 0;
   const formOptions = [
     { value: "form1", label: "Form 1" },
     { value: "form2", label: "Form 2" },
     { value: "form3", label: "Form 3" },
-    { value: "extra", label: "Extra" },
+    // { value: "extra", label: "Extra" },
   ];
 
   const handleCompatibilizar = () => {
@@ -318,7 +328,11 @@ function MessageInput(
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 text-sm text-light-primary dark:text-dark-primary">
               <DescriptionIcon size={16} />
-              <span className="font-medium">Seleccionar Formulario MOF:</span>
+              <span className="font-medium">
+                {isShowConsolidado
+                  ? "Subir archivos"
+                  : "Seleccionar Compatibilizaciónes:"}
+              </span>
             </div>
             <button
               onClick={handleMofCancel}
@@ -329,35 +343,37 @@ function MessageInput(
             </button>
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
-            {formOptions.map((option) => {
-              const fileCount = mofFiles[option.value]?.length || 0;
-              return (
-                <button
-                  key={option.value}
-                  onClick={() => handleMofFormSelect(option.value)}
-                  className="relative p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-light-secondary dark:hover:border-dark-secondary transition-all group max-h-14"
-                  disabled={loading}
-                >
-                  <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                      <Upload
-                        size={20}
-                        className="text-gray-500 group-hover:text-light-secondary"
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                      {option.label}
-                    </span>
-                    {fileCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-light-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                        {fileCount}
+          <div className="grid grid-cols-3 gap-3">
+            {(isShowConsolidado ? formOptions.slice(0, 1) : formOptions).map(
+              (option) => {
+                const fileCount = mofFiles[option.value]?.length || 0;
+                return (
+                  <button
+                    key={option.value}
+                    onClick={() => handleMofFormSelect(option.value)}
+                    className="relative p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-light-secondary dark:hover:border-dark-secondary transition-all group max-h-14"
+                    disabled={loading}
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center">
+                        <Upload
+                          size={20}
+                          className="text-gray-500 group-hover:text-light-secondary"
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                        {option.label}
                       </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                      {fileCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-light-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                          {fileCount}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              }
+            )}
           </div>
         </div>
 
@@ -670,6 +686,7 @@ function MessageInput(
                           </p>
                         </div>
                       </button>
+
                       <button
                         onClick={handleShowCompatibilizacion}
                         className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
@@ -682,7 +699,39 @@ function MessageInput(
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Compatibilizacion
+                            Facultativo
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={handleShowCompatibilizacion}
+                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                      >
+                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                          <DescriptionIcon
+                            size={14}
+                            className="text-light-primary dark:text-dark-primary"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                            Administrativo
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={handleShowConsolidado}
+                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                      >
+                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                          <DescriptionIcon
+                            size={14}
+                            className="text-light-primary dark:text-dark-primary"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                            Consolidado
                           </p>
                         </div>
                       </button>
@@ -705,7 +754,7 @@ function MessageInput(
                           </p>
                         </div>
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => console.log("opcion 2")}
                         className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
@@ -736,7 +785,7 @@ function MessageInput(
                             Opcion 3
                           </p>
                         </div>
-                      </button>
+                      </button> */}
                     </>
                   )}
                 </div>
