@@ -54,13 +54,14 @@ function ChatView() {
   }, [fetchChat]);
 
   const handleChatUpdate = (updatedChat) => {
+    console.log("updatedChat", updatedChat);
     setAllChats((prev) =>
-      prev.map((c) => (c._id === updatedChat._id ? updatedChat : c))
+      prev.map((c) => (c?._id === updatedChat?._id ? updatedChat : c))
     );
   };
 
   const handleSendMessage = async (userText, files) => {
-    if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
+    if (!currentChat || (!userText.trim() && (!files || files?.length === 0)))
       return;
     setLoadingSendMessage(true);
     setError(null);
@@ -84,7 +85,7 @@ function ChatView() {
 
     try {
       let chatAfterFileUpload = currentChat;
-      if (files && files.length > 0) {
+      if (files && files?.length > 0) {
         if (!currentChat.activeContext) {
           throw new Error(
             "El contexto activo del chat no está definido. No se puede subir el archivo."
@@ -117,9 +118,10 @@ function ChatView() {
             "/chats/process-document",
             formData
           );
-          //console.log("fileResponse chat normal", fileResponse);
+          console.log("fileResponse chat normal", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
+          console.log("chatAfterFileUpload", chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
         }
       }
@@ -138,7 +140,8 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        console.log("data", data);
+        console.log("data entre aqui al ultimo", data);
+        console.log("chatAfterFileUpload", chatAfterFileUpload);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -175,7 +178,7 @@ function ChatView() {
     try {
       const { data } = await apiClient.get("/chats");
       setAllChats(data);
-      if (data.length > 0) {
+      if (data?.length > 0) {
         if (
           window.location.pathname === "/" ||
           window.location.pathname === "/login"
@@ -238,7 +241,7 @@ function ChatView() {
 
   //functions para cargar archivos
   const onGlobalDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles.length > 0) {
+    if (acceptedFiles?.length > 0) {
       const newFiles = acceptedFiles.map((file) => ({
         file,
         id: Math.random().toString(36).substr(2, 9),
@@ -371,10 +374,9 @@ function ChatView() {
                   <MenuIcon className="h-6 w-6 " />
                 </button>
               </div>
-
               <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6 scroll-smooth">
                 <div className="mx-auto max-w-4xl space-y-6">
-                  {currentChat?.messages.length === 0 && (
+                  {currentChat?.messages?.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
                       <h3 className="mb-3 text-xl font-bold text-light-two md:text-2xl dark:text-dark-primary">
                         ¡Hola! ¿En qué puedo ayudarte?
@@ -385,7 +387,7 @@ function ChatView() {
                     </div>
                   )}
 
-                  {!currentChat || (allChats.length === 0 && loading) ? (
+                  {!currentChat || (allChats?.length === 0 && loading) ? (
                     <ChatSkeleton messagesCount={4} />
                   ) : (
                     <MessageList
