@@ -15,6 +15,7 @@ import SendIcon from "@mui/icons-material/Send";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
+import apiClient from "../api/axios";
 function MessageInput(
   {
     onSendMessage,
@@ -25,6 +26,8 @@ function MessageInput(
     selectedForm,
     onChangeSelectedForm,
     onChangeCompatibilizar,
+    currentChat,
+    setCurrentChat,
   },
   ref
 ) {
@@ -47,6 +50,8 @@ function MessageInput(
   const optionsRef = useRef(null);
   const textareaRef = useRef(null);
   const [isShowConsolidado, setIsShowConsolidado] = useState(false);
+  const [loaderCompFacultativoFiles, setLoaderCompFacultativoFiles] =
+    useState(false);
 
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
@@ -137,36 +142,59 @@ function MessageInput(
     }
   };
 
-  const handleMofSend = () => {
+  const handleMofSend = async () => {
     const hasFiles = Object.values(mofFiles).some(
       (fileArray) => fileArray.length > 0
     );
     if (!hasFiles) return;
 
-    // Convertir el objeto mofFiles a un formato que pueda usar onSendMessage
-    const allFiles = [];
-    Object.entries(mofFiles).forEach(([formType, fileArray]) => {
-      fileArray.forEach((fileObj) => {
-        allFiles.push({
-          ...fileObj.file,
-          formType, // Agregar información del tipo de formulario
+    try {
+      setLoaderCompFacultativoFiles(true);
+      const formData = new FormData();
+      formData.append("chatId", currentChat._id);
+
+      // Recorremos los archivos y los añadimos con el nombre que espera el backend
+      Object.entries(mofFiles).forEach(([formType, fileArray]) => {
+        fileArray.forEach((fileObj) => {
+          if (fileObj.file) {
+            // formType será "form1", "form2", "form3", etc.
+            const fieldName =
+              formType === "form1"
+                ? "form1File"
+                : formType === "form2"
+                ? "form2File"
+                : formType === "form3"
+                ? "form3File"
+                : "extraFile"; // opcional por si tienes extras
+
+            formData.append(fieldName, fileObj.file);
+          }
         });
       });
-    });
 
-    //maton aqui podes llamar al enpoint para subir los files
-    //luego el response que devolvera el endpoint de enviar archivos compatibilizaciones lo mandas a onSendMessage
+      // Peticion al endpoint /generar con token incluido
+      const { data: response } = await apiClient.post(
+        "/informes/generar-comp-facultativa",
+        formData
+      );
 
-    //onSendMessage("response.text="Archivos cargados correctamente", allFiles)
+      console.log("Respuesta del servidor:", response);
+      setCurrentChat(response.updatedChat);
 
-    // Reset compatibilizacion forms state
-    setMofFiles({
-      form1: [],
-      form2: [],
-      form3: [],
-      extra: [],
-    });
-    setShowMofContainer(false);
+      // Limpieza de estado
+      setMofFiles({
+        form1: [],
+        form2: [],
+        form3: [],
+        extra: [],
+      });
+      setShowMofContainer(false);
+    } catch (error) {
+      console.error("Error al enviar archivos:", error);
+    } finally {
+      handleShowCompatibilizacion();
+      setLoaderCompFacultativoFiles(false);
+    }
   };
 
   const handleMofCancel = () => {
@@ -335,8 +363,9 @@ function MessageInput(
               </span>
             </div>
             <button
+              disabled={loaderCompFacultativoFiles}
               onClick={handleMofCancel}
-              className="text-gray-500 hover:text-red-500 transition-colors p-1"
+              className="text-gray-500 hover:text-red-500 transition-colors p-1 disabled:opacity-50"
               title="Cancelar y volver"
             >
               <CloseIcon size={20} />
@@ -349,10 +378,10 @@ function MessageInput(
                 const fileCount = mofFiles[option.value]?.length || 0;
                 return (
                   <button
+                    disabled={loaderCompFacultativoFiles}
                     key={option.value}
                     onClick={() => handleMofFormSelect(option.value)}
                     className="relative p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-light-secondary dark:hover:border-dark-secondary transition-all group max-h-14"
-                    disabled={loading}
                   >
                     <div className="flex flex-col items-center">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center">
@@ -378,8 +407,8 @@ function MessageInput(
         </div>
 
         {showMofContainer && (
-          <div className="absolute bottom-full left-0 right-0 mb-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 z-30 max-h-[50vh] overflow-y-auto">
-            <div className="sticky z-50 top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 rounded-t-lg">
+          <div className="absolute bottom-full left-0 right-0 mb-4 bg-light-bg dark:bg-dark-bg rounded-lg border border-light-border dark:border-dark-border/20 z-30 max-h-[50vh] overflow-y-auto">
+            <div className="sticky z-50 top-0 bg-light-bg dark:bg-dark-bg p-4 rounded-t-lg">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-light-primary dark:text-dark-primary">
                   Archivos Cargados
@@ -387,7 +416,7 @@ function MessageInput(
                 <div className="flex gap-2">
                   <button
                     onClick={handleMofCancel}
-                    className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-light-bg dark:bg-dark-bg hover:bg-light-bg_h dark:hover:bg-dark-bg_h text-light-primary dark:text-dark-primary transition-colors"
                     disabled={loading}
                   >
                     Cancelar
@@ -395,17 +424,17 @@ function MessageInput(
                   <button
                     onClick={handleMofSend}
                     disabled={
-                      loading ||
+                      loaderCompFacultativoFiles ||
                       Object.values(mofFiles).every((arr) => arr.length === 0)
                     }
                     className={`px-4 py-2 text-sm rounded-lg transition-all ${
                       Object.values(mofFiles).some((arr) => arr.length > 0) &&
-                      !loading
+                      !loaderCompFacultativoFiles
                         ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md"
                         : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                     }`}
                   >
-                    {loading ? (
+                    {loaderCompFacultativoFiles ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                         Enviando...
@@ -580,50 +609,6 @@ function MessageInput(
         </div>
       )}
 
-      {/* {selectedAgentId === "MOF" && showOptions && (
-        <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
-          <button
-            onClick={handleFileSelect}
-            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-          >
-            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-              <Upload
-                size={14}
-                className="text-light-primary dark:text-dark-primary"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                Subir archivo
-              </p>
-            </div>
-          </button>
-
-          {showCompatibilizar && (
-            <button
-              onClick={handleCompatibilizar}
-              type="button"
-              disabled={loading}
-              className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                <OfflineBoltIcon
-                  size={14}
-                  className="text-light-primary dark:text-dark-primary"
-                />
-              </div>
-              <div className="flex-1 flex flex-row min-w-0">
-                <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                  Compatibilizar
-                </p>
-                {loading && (
-                  <div className="animate-spin rounded-full h-5 w-5 ml-3 border-b-2 border-current"></div>
-                )}
-              </div>
-            </button>
-          )}
-        </div>
-      )} */}
       <div className="relative">
         <div
           {...getRootProps()}

@@ -414,6 +414,8 @@ function ChatView() {
                   selectedForm={selectedForm}
                   onChangeSelectedForm={onChangeSelectedForm}
                   onChangeCompatibilizar={handleCompatibilizar}
+                  currentChat={currentChat}
+                  setCurrentChat={setCurrentChat}
                 />
               </div>
             </div>
