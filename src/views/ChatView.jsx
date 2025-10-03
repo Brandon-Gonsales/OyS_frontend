@@ -193,6 +193,7 @@ function ChatView() {
   }, [user, navigate, handleNewChat]);
 
   const handleAgentChange = (agentId) => {
+    console.log("agentId", agentId);
     setSelectedAgentId(agentId);
   };
 
@@ -297,6 +298,7 @@ function ChatView() {
       setLoadingSendMessage(false);
     }
   };
+  // Error state
 
   return (
     <div
@@ -305,6 +307,7 @@ function ChatView() {
     >
       <input {...getGlobalInputProps()} />
 
+      {/* Overlay global de drag & drop */}
       {(isGlobalDragActive || isDragOverGlobal) && (
         <div className="fixed inset-0 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 flex items-center justify-center z-50">
           <div className="text-center bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-200 dark:border-gray-700">
@@ -321,6 +324,7 @@ function ChatView() {
         </div>
       )}
       <div className="relative flex h-full w-full">
+        {/* overlaysideabr */}
         {!sidebarChatCollapsed && (
           <div
             className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
@@ -341,8 +345,10 @@ function ChatView() {
           onError={handleError}
         />
         <div className="relative flex h-full flex-1 overflow-hidden">
+          {/* Chat Section */}
           <div className="relative h-full flex-1 overflow-hidden">
             <div className="flex h-full w-full flex-col">
+              {/* Header chat mobile */}
               <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
                 <div className="flex items-center gap-2">
                   <AgentSelector
@@ -401,8 +407,12 @@ function ChatView() {
                 </div>
               </div>
 
+              {/* Input Area */}
               <div className="w-full px-1 pb-2 md:px-6 lg:mb-0">
                 <MessageInput
+                  // onSendMessage={handleSendMessage}
+                  // loading={loadingSendMessage}
+                  // error={error}
                   ref={messageInputRef}
                   onSendMessage={handleSendMessage}
                   loading={loadingSendMessage}

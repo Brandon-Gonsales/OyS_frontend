@@ -6,10 +6,10 @@ export const AgentSelector = ({
   selectedAgentId = "compatibilizacionFacultades",
   onAgentChange = () => {},
   agents = [
-    { id: "compatibilizacionFacultades", name: "Chat" },
-    { id: "compatibilizacion", name: "Compatibilizacion" },
-    { id: "MOF", name: "MOF" },
-    { id: "normativas", name: "Normativas" },
+    { id: "compatibilizacionFacultades", name: "Chat", disabled: false },
+    { id: "compatibilizacion", name: "Compatibilizacion", disabled: false },
+    { id: "MOF", name: "MOF", disabled: false },
+    { id: "normativas", name: "Normativas", disabled: true },
   ],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,9 +87,12 @@ export const AgentSelector = ({
         <div className="flex items-center h-6 p-1">
           {agents.map((agent) => (
             <button
+              disabled={agent.disabled}
               key={agent.id}
               onClick={() => selectAgent(agent.id)}
-              className={`flex w-full items-center px-3 py-2 text-base rounded-lg transition-colors duration-150 text-light-primary dark:text-dark-primary`}
+              className={`flex w-full items-center px-3 py-2 text-base rounded-lg transition-colors duration-150 text-light-primary dark:text-dark-primary ${
+                agent.disabled ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               <span
                 className={`truncate ${
