@@ -428,7 +428,7 @@ function MessageInput(
                   <button
                     onClick={handleMofCancel}
                     className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-light-bg dark:bg-dark-bg hover:bg-light-bg_h dark:hover:bg-dark-bg_h text-light-primary dark:text-dark-primary transition-colors"
-                    disabled={loading}
+                    disabled={loaderCompFacultativoFiles}
                   >
                     Cancelar
                   </button>
@@ -552,7 +552,7 @@ function MessageInput(
               key={fileObj.id}
               className="relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
             >
-              <div className="w-24 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-900 relative">
+              <div className="w-full h-14 flex items-center justify-center relative bg-gray-100 dark:bg-gray-800">
                 {fileObj.preview ? (
                   <img
                     src={fileObj.preview}
@@ -567,12 +567,11 @@ function MessageInput(
 
                 <button
                   onClick={() => removeFile(fileObj.id)}
-                  className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 "
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
-                  <CloseIcon />
+                  <CloseIcon size={12} className="text-white" />
                 </button>
               </div>
-
               <div className="p-2 border-t border-gray-100 dark:border-gray-700">
                 <p
                   className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate"
@@ -592,34 +591,6 @@ function MessageInput(
           ))}
         </div>
       )}
-
-      {showFormSelector && (
-        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-4 w-fit">
-          <div className="flex items-center gap-2 text-xs text-light-primary dark:text-dark-primary mb-2">
-            <DescriptionIcon size={12} />
-            <span>Seleccionar Formulario:</span>
-          </div>
-          <div className="flex gap-1 md:gap-2">
-            {formOptions.map((option) => (
-              <button
-                key={option.value + "_mini"}
-                onClick={() => onChangeSelectedForm(option.value)}
-                className={`px-2 py-1 text-xs rounded-md border transition-all ${
-                  selectedForm === option.value
-                    ? "border-light-border dark:border-dark-border bg-light-secondary dark:bg-dark-secondary text-light-bg dark:text-dark-primary"
-                    : "border-light-border_h dark:border-dark-border_h text-light-primary_h dark:text-dark-primary_h hover:border-light-border_h dark:hover:border-dark-border_h"
-                }`}
-              >
-                {selectedForm === option.value && (
-                  <Check size={10} className="inline mr-1" strokeWidth={3} />
-                )}
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="relative">
         <div
           {...getRootProps()}
