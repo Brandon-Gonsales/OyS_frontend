@@ -158,17 +158,29 @@ function MessageInput(
       Object.entries(mofFiles).forEach(([formType, fileArray]) => {
         fileArray.forEach((fileObj) => {
           if (fileObj.file) {
-            // formType será "form1", "form2", "form3", etc.
-            const fieldName =
-              formType === "form1"
-                ? "form1File"
-                : formType === "form2"
-                ? "form2File"
-                : formType === "form3"
-                ? "form3File"
-                : "extraFile"; // opcional por si tienes extras
+            
+            let fieldName = "";
+            // --- LÓGICA CONDICIONAL CORREGIDA ---
+            // Primero, comprobamos si estamos en el caso "consolidado"
+            if (typeCompatibilizacion === 'consolidado') {
+                // Si es así, el único nombre de campo que nos importa es 'compFile'
+                fieldName = 'compFile';
+              } else {
+                  // Si no, usamos la lógica anterior para los casos facultativa/administrativa
+                  fieldName =
+                    formType === "form1"
+                      ? "form1File"
+                      : formType === "form2"
+                      ? "form2File"
+                      : formType === "form3"
+                      ? "form3File"
+                      : null; // Usamos null para ignorar campos inesperados como 'extra'
+              }
 
-            formData.append(fieldName, fileObj.file);
+              // Solo añadimos el archivo si hemos determinado un nombre de campo válido
+              if (fieldName && fileObj.file) {
+                  formData.append(fieldName, fileObj.file);
+              }
           }
         });
       });
