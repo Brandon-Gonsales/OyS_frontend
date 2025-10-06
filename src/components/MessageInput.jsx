@@ -52,6 +52,7 @@ function MessageInput(
   const [isShowConsolidado, setIsShowConsolidado] = useState(false);
   const [loaderCompFacultativoFiles, setLoaderCompFacultativoFiles] =
     useState(false);
+  const [typeCompatibilizacion, setTypeCompatibilizacion] = useState("");
 
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
@@ -142,7 +143,7 @@ function MessageInput(
     }
   };
 
-  const handleMofSend = async () => {
+  const handleCompatibilizacionSend = async () => {
     const hasFiles = Object.values(mofFiles).some(
       (fileArray) => fileArray.length > 0
     );
@@ -173,8 +174,16 @@ function MessageInput(
       });
 
       // Peticion al endpoint /generar con token incluido
+      let urlComp = "";
+      if (typeCompatibilizacion === "facultativa") {
+        urlComp = "comp-facultativa";
+      } else if (typeCompatibilizacion === "administrativa") {
+        urlComp = "comp-administrativa";
+      } else {
+        urlComp = "consolidado";
+      }
       const { data: response } = await apiClient.post(
-        "/informes/generar-comp-facultativa",
+        `/informes/generar-${urlComp}`,
         formData
       );
 
@@ -327,11 +336,13 @@ function MessageInput(
     }
   };
 
-  const handleShowCompatibilizacion = () => {
+  const handleShowCompatibilizacion = (typeComp) => {
+    setTypeCompatibilizacion(typeComp);
     setShowCompatibilizar(!showCompatibilizar);
   };
 
-  const handleShowConsolidado = () => {
+  const handleShowConsolidado = (typeComp) => {
+    setTypeCompatibilizacion(typeComp);
     handleShowCompatibilizacion();
     setIsShowConsolidado(!isShowConsolidado);
   };
@@ -422,7 +433,7 @@ function MessageInput(
                     Cancelar
                   </button>
                   <button
-                    onClick={handleMofSend}
+                    onClick={handleCompatibilizacionSend}
                     disabled={
                       loaderCompFacultativoFiles ||
                       Object.values(mofFiles).every((arr) => arr.length === 0)
@@ -673,7 +684,9 @@ function MessageInput(
                       </button>
 
                       <button
-                        onClick={handleShowCompatibilizacion}
+                        onClick={() =>
+                          handleShowCompatibilizacion("facultativa")
+                        }
                         className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
                         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
@@ -689,7 +702,9 @@ function MessageInput(
                         </div>
                       </button>
                       <button
-                        onClick={handleShowCompatibilizacion}
+                        onClick={() =>
+                          handleShowCompatibilizacion("administrativa")
+                        }
                         className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
                         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
@@ -705,7 +720,7 @@ function MessageInput(
                         </div>
                       </button>
                       <button
-                        onClick={handleShowConsolidado}
+                        onClick={() => handleShowConsolidado("consolidado")}
                         className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
                         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
@@ -739,38 +754,6 @@ function MessageInput(
                           </p>
                         </div>
                       </button>
-                      {/* <button
-                        onClick={() => console.log("opcion 2")}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Opcion 2
-                          </p>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => console.log("opcion 3")}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Opcion 3
-                          </p>
-                        </div>
-                      </button> */}
                     </>
                   )}
                 </div>
