@@ -28,11 +28,12 @@ function MessageInput(
     onChangeCompatibilizar,
     currentChat,
     setCurrentChat,
+    files,
+    setFiles,
   },
   ref
 ) {
   const [message, setMessage] = useState("");
-  const [files, setFiles] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [mofFiles, setMofFiles] = useState({
@@ -158,29 +159,28 @@ function MessageInput(
       Object.entries(mofFiles).forEach(([formType, fileArray]) => {
         fileArray.forEach((fileObj) => {
           if (fileObj.file) {
-            
             let fieldName = "";
             // --- LÓGICA CONDICIONAL CORREGIDA ---
             // Primero, comprobamos si estamos en el caso "consolidado"
-            if (typeCompatibilizacion === 'consolidado') {
-                // Si es así, el único nombre de campo que nos importa es 'compFile'
-                fieldName = 'compFile';
-              } else {
-                  // Si no, usamos la lógica anterior para los casos facultativa/administrativa
-                  fieldName =
-                    formType === "form1"
-                      ? "form1File"
-                      : formType === "form2"
-                      ? "form2File"
-                      : formType === "form3"
-                      ? "form3File"
-                      : null; // Usamos null para ignorar campos inesperados como 'extra'
-              }
+            if (typeCompatibilizacion === "consolidado") {
+              // Si es así, el único nombre de campo que nos importa es 'compFile'
+              fieldName = "compFile";
+            } else {
+              // Si no, usamos la lógica anterior para los casos facultativa/administrativa
+              fieldName =
+                formType === "form1"
+                  ? "form1File"
+                  : formType === "form2"
+                  ? "form2File"
+                  : formType === "form3"
+                  ? "form3File"
+                  : null; // Usamos null para ignorar campos inesperados como 'extra'
+            }
 
-              // Solo añadimos el archivo si hemos determinado un nombre de campo válido
-              if (fieldName && fileObj.file) {
-                  formData.append(fieldName, fileObj.file);
-              }
+            // Solo añadimos el archivo si hemos determinado un nombre de campo válido
+            if (fieldName && fileObj.file) {
+              formData.append(fieldName, fileObj.file);
+            }
           }
         });
       });

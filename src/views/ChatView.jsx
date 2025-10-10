@@ -34,6 +34,7 @@ function ChatView() {
   const [globalFiles, setGlobalFiles] = useState([]);
   const messageInputRef = useRef(null);
   const [selectedForm, setSelectedForm] = useState("form1");
+  const [files, setFiles] = useState([]);
 
   const fetchChat = useCallback(async () => {
     if (!chatId) return;
@@ -232,7 +233,6 @@ function ChatView() {
     setError(errorMessage);
   }, []);
 
-  //functions para cargar archivos
   const onGlobalDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
       const newFiles = acceptedFiles.map((file) => ({
@@ -243,7 +243,11 @@ function ChatView() {
           : null,
       }));
 
-      // Pasar los archivos al MessageInput
+      // Actualizar el estado files con los nuevos archivos
+      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+
+      // OPCIONAL: Si también quieres mantener la funcionalidad
+      // de pasar archivos al MessageInput, déjalo:
       if (messageInputRef.current) {
         messageInputRef.current.addFilesFromGlobal(newFiles);
       }
@@ -267,6 +271,7 @@ function ChatView() {
         setIsDragOverGlobal(false);
       }
     },
+
     onDropAccepted: () => setIsDragOverGlobal(false),
     onDropRejected: () => setIsDragOverGlobal(false),
   });
@@ -416,6 +421,8 @@ function ChatView() {
                   onChangeCompatibilizar={handleCompatibilizar}
                   currentChat={currentChat}
                   setCurrentChat={setCurrentChat}
+                  files={files}
+                  setFiles={setFiles}
                 />
               </div>
             </div>
