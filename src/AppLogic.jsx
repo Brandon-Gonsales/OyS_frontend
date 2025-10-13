@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ChatView from "./views/ChatView";
 import ProjectInfoView from "./views/ProjectInfoView";
+import UploadRagFiles from "./views/UploadRagFiles";
 
 function AppLogic({ darkMode, toggleDarkMode }) {
   const navigate = useNavigate();
@@ -114,6 +115,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
         <Route path="chat/:chatId" element={<ChatView />} />
       </Route>
       <Route path="info" element={<ProjectInfoView />} />
+      <Route path="upload-rag-files" element={<UploadRagFiles />} />
       <Route path="*" element={<Navigate to="/" replace />} />
       {/* </Route> */}
     </Routes>
