@@ -2,12 +2,12 @@ import React from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Alert, Typography } from "@mui/material";
 import { useAuth } from "./context/AuthContext";
-import apiClient from "./api/axios";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ChatView from "./views/ChatView";
 import ProjectInfoView from "./views/ProjectInfoView";
+import { apiClient } from "./api/axios";
 
 function AppLogic({ darkMode, toggleDarkMode }) {
   const navigate = useNavigate();

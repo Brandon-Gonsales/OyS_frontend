@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader } from "../components/Loader";
 import MessageInput from "../components/MessageInput";
 import { SidebarChat } from "../components/SidebarChat";
-import apiClient from "../api/axios";
+import { apiClient, apiClient2 } from "../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
@@ -59,7 +59,7 @@ function ChatView() {
     );
   };
 
-  const handleSendMessage = async (userText, files) => {
+  const handleSendMessage = async (userText, files, typeAgent) => {
     if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
       return;
     setLoadingSendMessage(true);
@@ -78,7 +78,7 @@ function ChatView() {
       };
       setCurrentChat(updatedChat);
     }
-
+    console.log("typeAgent", typeAgent);
     try {
       let chatAfterFileUpload = currentChat;
       if (files && files.length > 0) {
@@ -130,7 +130,11 @@ function ChatView() {
           parts: [{ text: msg.text }],
         }));
 
-        const { data } = await apiClient.post("/chat", {
+        const isNormativas = typeAgent === "normativas";
+        const endpoint = isNormativas ? "/chat-normativas" : "/chat";
+        const client = isNormativas ? apiClient2 : apiClient;
+
+        const { data } = await client.post(endpoint, {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,

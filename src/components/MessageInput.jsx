@@ -15,7 +15,8 @@ import SendIcon from "@mui/icons-material/Send";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
-import apiClient from "../api/axios";
+import { apiClient } from "../api/axios";
+
 function MessageInput(
   {
     onSendMessage,
@@ -133,7 +134,7 @@ function MessageInput(
     if (!message.trim() && files.length === 0) return;
     const filesToSend = files.map((fileObj) => fileObj.file);
 
-    onSendMessage(message.trim(), filesToSend);
+    onSendMessage(message.trim(), filesToSend, selectedAgentId);
 
     setMessage("");
     setFiles([]);
@@ -158,29 +159,28 @@ function MessageInput(
       Object.entries(mofFiles).forEach(([formType, fileArray]) => {
         fileArray.forEach((fileObj) => {
           if (fileObj.file) {
-            
             let fieldName = "";
             // --- LÓGICA CONDICIONAL CORREGIDA ---
             // Primero, comprobamos si estamos en el caso "consolidado"
-            if (typeCompatibilizacion === 'consolidado') {
-                // Si es así, el único nombre de campo que nos importa es 'compFile'
-                fieldName = 'compFile';
-              } else {
-                  // Si no, usamos la lógica anterior para los casos facultativa/administrativa
-                  fieldName =
-                    formType === "form1"
-                      ? "form1File"
-                      : formType === "form2"
-                      ? "form2File"
-                      : formType === "form3"
-                      ? "form3File"
-                      : null; // Usamos null para ignorar campos inesperados como 'extra'
-              }
+            if (typeCompatibilizacion === "consolidado") {
+              // Si es así, el único nombre de campo que nos importa es 'compFile'
+              fieldName = "compFile";
+            } else {
+              // Si no, usamos la lógica anterior para los casos facultativa/administrativa
+              fieldName =
+                formType === "form1"
+                  ? "form1File"
+                  : formType === "form2"
+                  ? "form2File"
+                  : formType === "form3"
+                  ? "form3File"
+                  : null; // Usamos null para ignorar campos inesperados como 'extra'
+            }
 
-              // Solo añadimos el archivo si hemos determinado un nombre de campo válido
-              if (fieldName && fileObj.file) {
-                  formData.append(fieldName, fileObj.file);
-              }
+            // Solo añadimos el archivo si hemos determinado un nombre de campo válido
+            if (fieldName && fileObj.file) {
+              formData.append(fieldName, fileObj.file);
+            }
           }
         });
       });
