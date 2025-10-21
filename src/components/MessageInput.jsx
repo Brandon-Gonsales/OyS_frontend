@@ -175,6 +175,8 @@ function MessageInput(
                   ? "form2File"
                   : formType === "form3"
                   ? "form3File"
+                  : formType === "extra"
+                  ? "form4File"
                   : null; // Usamos null para ignorar campos inesperados como 'extra'
             }
 
@@ -366,7 +368,7 @@ function MessageInput(
     { value: "form1", label: "Form 1" },
     { value: "form2", label: "Form 2" },
     { value: "form3", label: "Form 3" },
-    // { value: "extra", label: "Extra" },
+    { value: "extra", label: "Extra" },
   ];
 
   const handleCompatibilizar = () => {
@@ -396,37 +398,40 @@ function MessageInput(
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            {(isShowConsolidado ? formOptions.slice(0, 1) : formOptions).map(
-              (option) => {
-                const fileCount = mofFiles[option.value]?.length || 0;
-                return (
-                  <button
-                    disabled={loaderCompFacultativoFiles}
-                    key={option.value}
-                    onClick={() => handleMofFormSelect(option.value)}
-                    className="relative p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-light-secondary dark:hover:border-dark-secondary transition-all group max-h-14"
-                  >
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                        <Upload
-                          size={20}
-                          className="text-gray-500 group-hover:text-light-secondary"
-                        />
-                      </div>
-                      <span className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                        {option.label}
-                      </span>
-                      {fileCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-light-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                          {fileCount}
-                        </span>
-                      )}
+          <div className="grid grid-cols-2 md:grid-cols-4  gap-3">
+            {(isShowConsolidado
+              ? formOptions.slice(0, 1)
+              : typeCompatibilizacion === "facultativa"
+              ? formOptions.slice(0, 3)
+              : formOptions
+            ).map((option) => {
+              const fileCount = mofFiles[option.value]?.length || 0;
+              return (
+                <button
+                  disabled={loaderCompFacultativoFiles}
+                  key={option.value}
+                  onClick={() => handleMofFormSelect(option.value)}
+                  className="relative p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-light-secondary dark:hover:border-dark-secondary transition-all group max-h-14"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center">
+                      <Upload
+                        size={20}
+                        className="text-gray-500 group-hover:text-light-secondary"
+                      />
                     </div>
-                  </button>
-                );
-              }
-            )}
+                    <span className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                      {option.label}
+                    </span>
+                    {fileCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-light-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                        {fileCount}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -631,6 +636,7 @@ function MessageInput(
             <div className="relative" ref={optionsRef}>
               <button
                 onClick={() => setShowOptions(!showOptions)}
+                disabled={selectedAgentId === "normativas"}
                 className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
                   showOptions
                     ? "bg-light-secondary text-light-bg dark:text-dark-primary shadow-md"
