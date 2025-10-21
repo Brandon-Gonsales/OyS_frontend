@@ -15,7 +15,8 @@ import SendIcon from "@mui/icons-material/Send";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
-import apiClient from "../api/axios";
+import { apiClient } from "../api/axios";
+
 function MessageInput(
   {
     onSendMessage,
@@ -134,7 +135,7 @@ function MessageInput(
     if (!message.trim() && files.length === 0) return;
     const filesToSend = files.map((fileObj) => fileObj.file);
 
-    onSendMessage(message.trim(), filesToSend);
+    onSendMessage(message.trim(), filesToSend, selectedAgentId);
 
     setMessage("");
     setFiles([]);

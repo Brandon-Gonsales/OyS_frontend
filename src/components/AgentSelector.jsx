@@ -8,8 +8,8 @@ export const AgentSelector = ({
   agents = [
     { id: "compatibilizacionFacultades", name: "Chat", disabled: false },
     { id: "compatibilizacion", name: "Compatibilizacion", disabled: false },
+    { id: "normativas", name: "Normativas", disabled: false },
     { id: "MOF", name: "MOF", disabled: true },
-    { id: "normativas", name: "Normativas", disabled: true },
   ],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
