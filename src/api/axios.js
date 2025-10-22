@@ -92,17 +92,14 @@ export { apiClient, apiClient2, isTokenExpired };
 
 // import axios from "axios";
 
-// // 🟢 Cliente principal (Render)
 // const apiClient = axios.create({
 //   baseURL: `${process.env.REACT_APP_API_URL}/api`,
 // });
 
-// // 🟣 Segundo cliente (Cloud Run)
 // const apiClient2 = axios.create({
 //   baseURL: `${process.env.REACT_APP_API_URL2}/api`,
 // });
 
-// // 🔐 Interceptor para agregar token a ambos
 // const addAuthInterceptor = (client) => {
 //   client.interceptors.request.use(
 //     (config) => {
