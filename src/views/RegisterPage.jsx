@@ -78,7 +78,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Person className="text-light-secondary dark:text-dark-secondary" />
+                  <Person className="text-light-border dark:text-dark-border" />
                 </div>
                 <input
                   id="name"
@@ -86,7 +86,7 @@ const RegisterPage = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="block w-full pl-12 pr-12 py-3 border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-light-border dark:focus:border-dark-border transition-colors"
+                  className="block w-full pl-12 pr-12 py-3 border border-light-border/20 dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border/50 dark:focus:ring-dark-border/50 focus:border-light-border/50 dark:focus:border-dark-border/50 transition-colors"
                   placeholder="Tu nombre completo"
                 />
               </div>
@@ -101,7 +101,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Email className="text-light-secondary dark:text-dark-secondary" />
+                  <Email className="text-light-border dark:text-dark-border" />
                 </div>
                 <input
                   id="email"
@@ -109,7 +109,7 @@ const RegisterPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="block w-full pl-12 pr-12 py-3 border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-light-border dark:focus:border-dark-border transition-colors"
+                  className="block w-full pl-12 pr-12 py-3 border border-light-border/20 dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border/50 dark:focus:ring-dark-border/50 focus:border-light-border/50 dark:focus:border-dark-border/50 transition-colors"
                   placeholder="correo"
                 />
               </div>
@@ -124,7 +124,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="text-light-secondary dark:text-dark-secondary" />
+                  <Lock className="text-light-border dark:text-dark-border" />
                 </div>
                 <input
                   id="password"
@@ -132,13 +132,13 @@ const RegisterPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full pl-12 pr-12 py-3 border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-light-border dark:focus:border-dark-border transition-colors"
+                  className="block w-full pl-12 pr-12 py-3 border border-light-border/20 dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border/50 dark:focus:ring-dark-border/50 focus:border-light-border/50 dark:focus:border-dark-border/50 transition-colors"
                   placeholder="Tu contraseña"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-light-secondary dark:text-dark-secondary hover:text-light-secondary_h dark:hover:text-dark-secondary_h transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-light-border dark:text-dark-border hover:text-light-border_h dark:hover:text-dark-border_h transition-colors"
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </button>

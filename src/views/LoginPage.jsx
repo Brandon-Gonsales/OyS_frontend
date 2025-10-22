@@ -83,7 +83,7 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="block w-full pl-12 pr-12 py-3 border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-light-border dark:focus:border-dark-border transition-colors"
+                  className="block w-full pl-12 pr-12 py-3 border border-light-border/20 dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border/50 dark:focus:ring-dark-border/50 focus:border-light-border/50 dark:focus:border-dark-border/50 transition-colors"
                   placeholder="correo"
                 />
               </div>
@@ -106,7 +106,7 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full pl-12 pr-12 py-3 border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border focus:border-light-border dark:focus:border-dark-border transition-colors"
+                  className="block w-full pl-12 pr-12 py-3 border border-light-border/20 dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg rounded-xl  text-light-primary dark:text-dark-primary placeholder-light-primary placeholder-opacity-20 dark:placeholder-dark-primary dark:placeholder-opacity-20 focus:outline-none focus:ring-2 focus:ring-light-border/50 dark:focus:ring-dark-border/50 focus:border-light-border/50 dark:focus:border-dark-border/50 transition-colors"
                   placeholder="Tu contraseña"
                 />
                 <button
