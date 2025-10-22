@@ -35,16 +35,36 @@ const apiClient2 = axios.create({
 });
 
 const isTokenExpired = (token) => {
+  // 1. Verificar si el token existe
   if (!token) return true;
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    console.log(payload)
-    const expirationTime = payload.exp * 1000; // Convertir a milisegundos
-    return Date.now() >= expirationTime;
+    // 2. Decodificar el payload (la segunda parte)
+    // El formato de un JWT es header.payload.signature
+    const encodedPayload = token.split('.')[1];
+    if (!encodedPayload) return true; // Token mal formado
+
+    // atob() decodifica de Base64. JSON.parse() convierte el string a objeto.
+    const payload = JSON.parse(atob(encodedPayload));
+
+    // 3. Obtener el tiempo de expiración
+    // 'exp' está en SEGUNDOS de Unix time (epoch).
+    if (!payload.exp) return true; // No tiene tiempo de expiración
+
+    // Multiplicamos por 1000 para convertir de segundos a milisegundos
+    const expirationTime = payload.exp * 1000;
+
+    // 4. Comparar con el tiempo actual
+    // Date.now() devuelve el tiempo actual en MILISEGUNDOS.
+    const now = Date.now();
+
+    // Si el tiempo actual (now) es MAYOR o IGUAL que el tiempo de expiración, el token ha expirado.
+    return now >= expirationTime;
+
   } catch (error) {
-    console.error("Error al decodificar token:", error);
-    return true;
+    // Esto captura errores de decodificación (token no es Base64, JSON no válido, etc.)
+    console.error("Error al decodificar o parsear el token:", error);
+    return true; // Si hay un error, se considera inválido o expirado por seguridad
   }
 };
 
