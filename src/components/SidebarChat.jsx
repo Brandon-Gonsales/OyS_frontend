@@ -11,7 +11,7 @@ import { useState } from "react";
 import { ChatItem } from "./Modals";
 export const SidebarChat = ({
   allChats,
-  handleNewChat,
+  // handleNewChat,
   handleDeleteChat,
   sidebarChatCollapsed,
   toggleChatSidebar,
@@ -20,6 +20,7 @@ export const SidebarChat = ({
   logo,
   onChatUpdated,
   onError,
+  changeAgentLoader,
 }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export const SidebarChat = ({
     console.log("chatIdParam: ", chatIdParam);
     navigate(`/chat/${chatIdParam}`);
   };
+  // console.log("allChats: ", allChats);
 
   const handleChatDeleted = (deletedChatId) => {
     // Llamar a la función original del padre
@@ -69,13 +71,13 @@ export const SidebarChat = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={handleNewChat}
                 className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
                 aria-label="Nuevo chat"
               >
                 <EditIcon className="h-7 w-7" />
-              </button>
+              </button> */}
               <button
                 onClick={toggleChatSidebar}
                 className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
@@ -100,25 +102,46 @@ export const SidebarChat = ({
           </div>
 
           <div className="flex-1 space-y-1 overflow-y-auto p-3">
-            {filteredChats.length > 0 ? (
-              filteredChats.map((chat) => (
-                <ChatItem
-                  key={chat._id}
-                  chat={chat}
-                  isActive={chatId === chat._id}
-                  onClick={() => {
-                    chatId !== chat._id && handleChatClick(chat._id);
-                  }}
-                  onChatUpdated={onChatUpdated}
-                  onChatDeleted={handleChatDeleted}
-                  onError={onError}
-                />
-              ))
+            {changeAgentLoader ? (
+              <div className="grid grid-cols-1 gap-2">
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+                <div className="w-full h-6 bg-gray-300 dark:bg-dark-bg_h rounded"></div>
+              </div>
             ) : (
-              <div className="py-8 text-center">
-                <p className="text-sm text-light-primary dark:text-dark-primary">
-                  No hay chats aún
-                </p>
+              <div>
+                {filteredChats.length > 0 ? (
+                  filteredChats.map((chat) => (
+                    <ChatItem
+                      key={chat._id}
+                      chat={chat}
+                      isActive={chatId === chat._id}
+                      onClick={() => {
+                        chatId !== chat._id && handleChatClick(chat._id);
+                      }}
+                      onChatUpdated={onChatUpdated}
+                      onChatDeleted={handleChatDeleted}
+                      onError={onError}
+                    />
+                  ))
+                ) : (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-light-primary dark:text-dark-primary">
+                      No hay chats aún
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -149,13 +172,13 @@ export const SidebarChat = ({
                 <MenuIcon className="h-7 w-7" />
               </button>
             </div>
-            <button
+            {/* <button
               onClick={handleNewChat}
               className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary shadow-md transition-all duration-200 hover:bg-light-two_d hover:shadow-lg dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d"
               aria-label="Nuevo chat"
             >
               <EditIcon className="h-7 w-7" />
-            </button>
+            </button> */}
           </div>
 
           <div className="flex flex-col items-center">

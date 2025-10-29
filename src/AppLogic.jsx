@@ -24,6 +24,7 @@ import Layout from "./components/Layout";
 import ChatView from "./views/ChatView";
 import ProjectInfoView from "./views/ProjectInfoView";
 import { apiClient, isTokenExpired } from "./api/axios";
+import { chatService } from "./api/chat-api";
 
 function AppLogic({ darkMode, toggleDarkMode }) {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
   const [error, setError] = React.useState(null);
   const [showTokenExpiredDialog, setShowTokenExpiredDialog] =
     React.useState(false);
+  const hasInitialized = React.useRef(false);
 
   // Verificar token al montar el componente
   React.useEffect(() => {
@@ -92,7 +94,9 @@ function AppLogic({ darkMode, toggleDarkMode }) {
 
   const handleNewChat = React.useCallback(async () => {
     try {
-      const { data } = await apiClient.post("/chats");
+      const data = await chatService.createChat();
+      const agent = localStorage.getItem("selectedAgentId") || "chat";
+      await chatService.updateContext(data._id, agent);
       setAllChats((prev) => [data, ...prev]);
       setActiveChatId(data._id);
       navigate(`/chat/${data._id}`);
@@ -103,14 +107,16 @@ function AppLogic({ darkMode, toggleDarkMode }) {
   }, [navigate]);
 
   const fetchChats = React.useCallback(async () => {
-    if (!user) {
+    if (!user || hasInitialized.current) {
       setLoading(false);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get("/chats");
+      const agent = localStorage.getItem("selectedAgentId") || "chat";
+      // const { data } = await apiClient.get("/chats");
+      const data = await chatService.getHistorialChatsByContext(agent);
       setAllChats(data);
       if (data.length > 0) {
         if (
@@ -122,6 +128,7 @@ function AppLogic({ darkMode, toggleDarkMode }) {
       } else {
         await handleNewChat();
       }
+      hasInitialized.current = true;
     } catch (err) {
       if (err.tokenExpired) return;
       setError("No se pudieron cargar los chats.");
