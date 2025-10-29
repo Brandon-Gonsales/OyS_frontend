@@ -24,6 +24,7 @@ import Layout from "./components/Layout";
 import ChatView from "./views/ChatView";
 import ProjectInfoView from "./views/ProjectInfoView";
 import { apiClient, isTokenExpired } from "./api/axios";
+import { chatService } from "./api/chat-api";
 
 function AppLogic({ darkMode, toggleDarkMode }) {
   const navigate = useNavigate();
@@ -110,7 +111,9 @@ function AppLogic({ darkMode, toggleDarkMode }) {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get("/chats");
+      const agent = localStorage.getItem("selectedAgentId") || "chat";
+      // const { data } = await apiClient.get("/chats");
+      const data = await chatService.getHistorialChatsByContext(agent);
       setAllChats(data);
       if (data.length > 0) {
         if (

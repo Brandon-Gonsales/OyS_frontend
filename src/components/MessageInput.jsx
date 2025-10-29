@@ -16,6 +16,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
 import { apiClient } from "../api/axios";
+import { AgentSelector } from "./AgentSelector";
 
 function MessageInput(
   {
@@ -23,13 +24,15 @@ function MessageInput(
     loading,
     error,
     disableGlobalDrop,
-    selectedAgentId,
+    selectedAgent,
+    handleAgentChange,
     selectedForm,
     onChangeSelectedForm,
     onChangeCompatibilizar,
     currentChat,
     setCurrentChat,
     files,
+    changeAgentLoader,
     setFiles,
   },
   ref
@@ -64,14 +67,14 @@ function MessageInput(
 
   // Resetear el form seleccionado cuando cambien las condiciones
   useEffect(() => {
-    if (selectedAgentId !== "compatibilizacion" || files.length === 0) {
+    if (selectedAgent !== "compatibilizacion" || files.length === 0) {
       onChangeSelectedForm("form1");
     }
-  }, [selectedAgentId, files.length, onChangeSelectedForm]);
+  }, [selectedAgent, files.length, onChangeSelectedForm]);
 
   // Resetear MOF files cuando cambie el agente
   useEffect(() => {
-    if (selectedAgentId !== "MOF") {
+    if (selectedAgent !== "MOF") {
       setMofFiles({
         form1: [],
         form2: [],
@@ -80,7 +83,7 @@ function MessageInput(
       });
       setShowMofContainer(false);
     }
-  }, [selectedAgentId]);
+  }, [selectedAgent]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -128,14 +131,14 @@ function MessageInput(
     onDragLeave: () => setIsDragOver(false),
     onDropAccepted: () => setIsDragOver(false),
     onDropRejected: () => setIsDragOver(false),
-    disabled: disableGlobalDrop || selectedAgentId === "MOF",
+    disabled: disableGlobalDrop || selectedAgent === "MOF",
   });
 
   const handleSend = () => {
     if (!message.trim() && files.length === 0) return;
     const filesToSend = files.map((fileObj) => fileObj.file);
 
-    onSendMessage(message.trim(), filesToSend, selectedAgentId);
+    onSendMessage(message.trim(), filesToSend, selectedAgent);
 
     setMessage("");
     setFiles([]);
@@ -202,7 +205,7 @@ function MessageInput(
         formData
       );
 
-      console.log("Respuesta del servidor:", response);
+      //console.log("Respuesta del servidor:", response);
       setCurrentChat(response.updatedChat);
 
       // Limpieza de estado
@@ -347,7 +350,7 @@ function MessageInput(
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height =
-        Math.min(textareaRef.current.scrollHeight, 120) + "px";
+        Math.min(textareaRef.current.scrollHeight, 420) + "px";
     }
   };
 
@@ -363,7 +366,7 @@ function MessageInput(
   };
 
   const showFormSelector =
-    selectedAgentId === "compatibilizacion" && files.length > 0;
+    selectedAgent === "compatibilizacion" && files.length > 0;
   const formOptions = [
     { value: "form1", label: "Form 1" },
     { value: "form2", label: "Form 2" },
@@ -375,7 +378,7 @@ function MessageInput(
     onChangeCompatibilizar();
   };
 
-  if (showCompatibilizar && selectedAgentId === "compatibilizacion") {
+  if (showCompatibilizar && selectedAgent === "compatibilizacion") {
     return (
       <div className="relative flex flex-col w-full mx-auto max-w-4xl">
         <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-6">
@@ -612,10 +615,10 @@ function MessageInput(
       <div className="relative">
         <div
           {...getRootProps()}
-          className={`relative border rounded-2xl transition-all duration-200 ${
+          className={`relative border-4 rounded-3xl shadow-sm transition-all duration-200 ${
             isDragActive || isDragOver
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
-              : "border-gray-300 dark:border-gray-600 bg-light-bg dark:bg-dark-bg"
+              : "border-light-border dark:border-dark-border/30 bg-light-bg dark:bg-dark-bg"
           }`}
         >
           <input {...getInputProps()} />
@@ -632,124 +635,7 @@ function MessageInput(
             </div>
           )}
 
-          <div className="flex items-end p-3 gap-3">
-            <div className="relative" ref={optionsRef}>
-              <button
-                onClick={() => setShowOptions(!showOptions)}
-                disabled={selectedAgentId === "normativas"}
-                className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  showOptions
-                    ? "bg-light-secondary text-light-bg dark:text-dark-primary shadow-md"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <div
-                  className={`transform transition-transform duration-200  ${
-                    showOptions ? "rotate-45" : ""
-                  }`}
-                >
-                  <AddIcon />
-                </div>
-              </button>
-
-              {showOptions && (
-                <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
-                  {selectedAgentId === "compatibilizacion" ? (
-                    <>
-                      <button
-                        onClick={handleFileSelect}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <Upload
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Subir archivo
-                          </p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          handleShowCompatibilizacion("facultativa")
-                        }
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Facultativo
-                          </p>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleShowCompatibilizacion("administrativa")
-                        }
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Administrativo
-                          </p>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleShowConsolidado("consolidado")}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Consolidado
-                          </p>
-                        </div>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={handleFileSelect}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <Upload
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Subir archivo
-                          </p>
-                        </div>
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
+          <div className="flex flex-col p-3 gap-3">
             <div className="flex-1">
               <textarea
                 ref={textareaRef}
@@ -763,25 +649,149 @@ function MessageInput(
                 onKeyDown={handleKeyDown}
                 disabled={loading}
                 rows="1"
-                style={{ minHeight: "24px", maxHeight: "120px" }}
+                style={{ minHeight: "24px", maxHeight: "420px" }}
               />
             </div>
+            <div className="flex justify-between">
+              <div className="flex items-center gap-2">
+                <div className="relative" ref={optionsRef}>
+                  <button
+                    onClick={() => setShowOptions(!showOptions)}
+                    disabled={selectedAgent === "normativas"}
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center shadow-md justify-center transition-all duration-200 ${
+                      showOptions
+                        ? "bg-light-secondary text-light-bg dark:text-dark-primary"
+                        : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <div
+                      className={`transform transition-transform duration-200  ${
+                        showOptions ? "rotate-45" : ""
+                      }`}
+                    >
+                      <AddIcon />
+                    </div>
+                  </button>
 
-            <button
-              onClick={handleSend}
-              disabled={loading || (!message.trim() && files.length === 0)}
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                (message.trim() || files.length > 0) && !loading
-                  ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
-              ) : (
-                <SendIcon />
-              )}
-            </button>
+                  {showOptions && (
+                    <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
+                      {selectedAgent === "compatibilizacion" ? (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleShowCompatibilizacion("facultativa")
+                            }
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Facultativo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleShowCompatibilizacion("administrativa")
+                            }
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Administrativo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => handleShowConsolidado("consolidado")}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Consolidado
+                              </p>
+                            </div>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <AgentSelector
+                  loaderCompFacultativoFiles={loaderCompFacultativoFiles}
+                  changeAgentLoader={changeAgentLoader}
+                  selectAgent={selectedAgent}
+                  onSelect={handleAgentChange}
+                />
+              </div>
+              <button
+                onClick={handleSend}
+                disabled={loading || (!message.trim() && files.length === 0)}
+                className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center shadow-md justify-center transition-all duration-200 ${
+                  (message.trim() || files.length > 0) && !loading
+                    ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                ) : (
+                  <SendIcon />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
