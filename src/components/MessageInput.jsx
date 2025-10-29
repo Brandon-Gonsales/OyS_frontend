@@ -205,7 +205,7 @@ function MessageInput(
         formData
       );
 
-      //console.log("Respuesta del servidor:", response);
+      console.log("Respuesta del servidor:", response);
       setCurrentChat(response.updatedChat);
 
       // Limpieza de estado

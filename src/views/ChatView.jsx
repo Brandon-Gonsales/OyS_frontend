@@ -37,14 +37,6 @@ function ChatView() {
   const [selectedForm, setSelectedForm] = useState("form1");
   const [files, setFiles] = useState([]);
   const [changeAgentLoader, setChangeAgentLoader] = useState(false);
-
-  // useEffect(() => {
-  //   const savedAgentId = localStorage.getItem("selectedAgentId");
-  //   if (savedAgentId) {
-  //     setSelectedAgent(savedAgentId);
-  //   }
-  // }, []);
-
   useEffect(() => {
     localStorage.setItem("selectedAgentId", selectedAgent);
   }, [selectedAgent]);
@@ -113,7 +105,7 @@ function ChatView() {
             "/extract-json",
             formData
           );
-          //console.log("fileResponse extract-sjon", fileResponse);
+          console.log("fileResponse extract-sjon", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -128,7 +120,7 @@ function ChatView() {
             "/process-document",
             formData
           );
-          //console.log("fileResponse chat normal", fileResponse);
+          console.log("fileResponse chat normal", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -153,7 +145,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        //console.log("data", data);
+        console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -174,10 +166,12 @@ function ChatView() {
       setChangeAgentLoader(true);
       const data = await chatService.createChat();
       setAllChats((prev) => [data, ...prev]);
+      //console.log("data agent change", data);
       setActiveChatId(data._id);
       await chatService.updateContext(data._id, agentId);
       navigate(`/chat/${data._id}`);
       setSelectedAgent(agentId);
+      //fetchChats();
       // alert("success", "agente cambiado exitosamente");
     } catch (err) {
       alert(
@@ -211,24 +205,14 @@ function ChatView() {
     try {
       // const { data } = await apiClient.get("/chats");
       const data = await chatService.getHistorialChatsByContext(selectedAgent);
+      //console.log("data  view", data);
       setAllChats(data);
-      if (data.length > 0) {
-        if (
-          window.location.pathname === "/" ||
-          window.location.pathname === "/login"
-        ) {
-          navigate(`/chat/${data[0]._id}`, { replace: true });
-        }
-      } else {
-        // await handleNewChat();
-        handleAgentChange(selectedAgent);
-      }
     } catch (err) {
       setError("No se pudieron cargar los chats.");
     } finally {
       setLoading(false);
     }
-  }, [user, navigate /*handleNewChat,*/]);
+  }, [user, navigate /*handleNewChat,*/, selectedAgent]);
 
   useEffect(() => {
     fetchChats();

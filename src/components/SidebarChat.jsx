@@ -40,6 +40,7 @@ export const SidebarChat = ({
     console.log("chatIdParam: ", chatIdParam);
     navigate(`/chat/${chatIdParam}`);
   };
+  // console.log("allChats: ", allChats);
 
   const handleChatDeleted = (deletedChatId) => {
     // Llamar a la función original del padre
