@@ -75,7 +75,7 @@ export const AgentSelector = ({
       <button
         disabled={changeAgentLoader || loaderCompFacultativoFiles}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 disabled:opacity-50 disabled:cursor-not-allowed py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary rounded-lg transition-colors duration-200 shadow"
+        className="flex items-center gap-2 px-3 disabled:opacity-50 disabled:cursor-not-allowed py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary rounded-3xl transition-colors duration-200 shadow"
         aria-label="Seleccionar tipo de respuesta"
         aria-expanded={isOpen}
       >

@@ -392,7 +392,7 @@ function ChatView() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6 scroll-smooth">
-                <div className="mx-auto max-w-4xl space-y-6">
+                <div className="mx-auto max-w-3xl space-y-6">
                   {currentChat?.messages.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
                       <h3 className="mb-3 text-xl font-bold text-light-two md:text-2xl dark:text-dark-primary">

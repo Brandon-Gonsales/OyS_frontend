@@ -40,11 +40,12 @@ function MessageInput(
   const [message, setMessage] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [mofFiles, setMofFiles] = useState({
+  const [filesAgent, setFilesAgent] = useState({
     form1: [],
     form2: [],
     form3: [],
     extra: [],
+    mof1: [],
   });
   const [showMofContainer, setShowMofContainer] = useState(false);
   const [showCompatibilizar, setShowCompatibilizar] = useState(false);
@@ -58,6 +59,7 @@ function MessageInput(
   const [loaderCompFacultativoFiles, setLoaderCompFacultativoFiles] =
     useState(false);
   const [typeCompatibilizacion, setTypeCompatibilizacion] = useState("");
+  const [isShowMofRapido, setIsShowMofRapido] = useState(false);
 
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
@@ -75,11 +77,12 @@ function MessageInput(
   // Resetear MOF files cuando cambie el agente
   useEffect(() => {
     if (selectedAgent !== "mof") {
-      setMofFiles({
+      setFilesAgent({
         form1: [],
         form2: [],
         form3: [],
         extra: [],
+        mof1: [],
       });
       setShowMofContainer(false);
     }
@@ -104,7 +107,7 @@ function MessageInput(
         if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
       });
       // Cleanup MOF files previews
-      Object.values(mofFiles)
+      Object.values(filesAgent)
         .flat()
         .forEach((fileObj) => {
           if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
@@ -148,8 +151,8 @@ function MessageInput(
     }
   };
 
-  const handleCompatibilizacionSend = async () => {
-    const hasFiles = Object.values(mofFiles).some(
+  const handleGenerateResponseAgent = async () => {
+    const hasFiles = Object.values(filesAgent).some(
       (fileArray) => fileArray.length > 0
     );
     if (!hasFiles) return;
@@ -160,17 +163,14 @@ function MessageInput(
       formData.append("chatId", currentChat._id);
 
       // Recorremos los archivos y los añadimos con el nombre que espera el backend
+      Object.entries(filesAgent).forEach(([formType, fileArray]) => {
+        fileArray.forEach((fileObj) => {
+          if (fileObj.file) {
+            let fieldName = "";
 
-      if (selectedAgent === "mof") {
-        //Si el agente seleccionado es igual a MOF entra aqui, podemo llamar algun enpoint con apiCliente.post(mof-proccess)
-
-        /////Tambien si MOF recibira archivos podemos quitar estas condiciones de if y solo usarlo en la parte del else de abajo(obvio quitamos el else, sin condificiones) solo se podria construir la url base del MOF abajo en la linea 202 - 208. y usar en la linea 209 o hacer condicion para llamar otro enpoint.
-        console.log("entre a MOF");
-      } else {
-        Object.entries(mofFiles).forEach(([formType, fileArray]) => {
-          fileArray.forEach((fileObj) => {
-            if (fileObj.file) {
-              let fieldName = "";
+            if (selectedAgent === "mof") {
+              fieldName = "form1File";
+            } else {
               // Primero, comprobamos si estamos en el caso "consolidado"
               if (typeCompatibilizacion === "consolidado") {
                 // Si es así, el único nombre de campo que nos importa es 'compFile'
@@ -188,17 +188,21 @@ function MessageInput(
                     ? "form4File"
                     : null; // Usamos null para ignorar campos inesperados como 'extra'
               }
-
-              // Solo añadimos el archivo si hemos determinado un nombre de campo válido
-              if (fieldName && fileObj.file) {
-                formData.append(fieldName, fileObj.file);
-              }
             }
-          });
-        });
 
-        // Peticion al endpoint /generar con token incluido
-        let urlComp = "";
+            // Solo añadimos el archivo si hemos determinado un nombre de campo válido
+            if (fieldName && fileObj.file) {
+              formData.append(fieldName, fileObj.file);
+            }
+          }
+        });
+      });
+
+      // Peticion al endpoint /generar con token incluido
+      let urlComp = "";
+      if (selectedAgent === "mof") {
+        urlComp = "mof-rapido";
+      } else {
         if (typeCompatibilizacion === "facultativa") {
           urlComp = "comp-facultativa";
         } else if (typeCompatibilizacion === "administrativa") {
@@ -206,22 +210,24 @@ function MessageInput(
         } else {
           urlComp = "consolidado";
         }
-        const { data: response } = await apiClient.post(
-          `/informes/generar-${urlComp}`,
-          formData
-        );
-
-        console.log("Respuesta del servidor:", response);
-        setCurrentChat(response.updatedChat);
-
-        // Limpieza de estado
-        setMofFiles({
-          form1: [],
-          form2: [],
-          form3: [],
-          extra: [],
-        });
       }
+      const { data: response } = await apiClient.post(
+        `/informes/generar-${urlComp}`,
+        formData
+      );
+
+      console.log("Respuesta del servidor:", response);
+      setCurrentChat(response.updatedChat);
+
+      // Limpieza de estado
+      setFilesAgent({
+        form1: [],
+        form2: [],
+        form3: [],
+        extra: [],
+        mof1: [],
+      });
+
       setShowMofContainer(false);
     } catch (error) {
       console.error("Error al enviar archivos:", error);
@@ -232,19 +238,21 @@ function MessageInput(
   };
 
   const handleMofCancel = () => {
+    setIsShowMofRapido(false);
     setIsShowConsolidado(false);
     handleShowCompatibilizacion();
-    Object.values(mofFiles)
+    Object.values(filesAgent)
       .flat()
       .forEach((fileObj) => {
         if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
       });
 
-    setMofFiles({
+    setFilesAgent({
       form1: [],
       form2: [],
       form3: [],
       extra: [],
+      mof1: [],
     });
     setShowMofContainer(false);
     if (window.changeSelectedAgent) {
@@ -263,7 +271,7 @@ function MessageInput(
   };
 
   const removeMofFile = (formType, fileId) => {
-    setMofFiles((prev) => {
+    setFilesAgent((prev) => {
       const updatedForm = prev[formType].filter((f) => {
         if (f.id === fileId) {
           if (f.preview) URL.revokeObjectURL(f.preview);
@@ -302,7 +310,7 @@ function MessageInput(
           : null,
       }));
 
-      setMofFiles((prev) => ({
+      setFilesAgent((prev) => ({
         ...prev,
         [selectedMofForm]: [...prev[selectedMofForm], ...newFiles],
       }));
@@ -372,6 +380,10 @@ function MessageInput(
     setIsShowConsolidado(!isShowConsolidado);
   };
 
+  const handleShowMofRapido = () => {
+    setIsShowMofRapido(!isShowMofRapido);
+  };
+
   const showFormSelector =
     selectedAgent === "compatibilizacion" && files.length > 0;
   const formOptions = [
@@ -379,21 +391,25 @@ function MessageInput(
     { value: "form2", label: "Form 2" },
     { value: "form3", label: "Form 3" },
     { value: "extra", label: "Extra" },
+    { value: "mof1", label: "Form 1" },
   ];
 
   const handleCompatibilizar = () => {
     onChangeCompatibilizar();
   };
 
-  if (showCompatibilizar && selectedAgent === "compatibilizacion") {
+  if (
+    (showCompatibilizar || isShowMofRapido) &&
+    (selectedAgent === "compatibilizacion" || selectedAgent === "mof")
+  ) {
     return (
-      <div className="relative flex flex-col w-full mx-auto max-w-4xl">
-        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-6">
+      <div className="relative flex flex-col w-full mx-auto max-w-3xl">
+        <div className="rounded-3xl border-2 border-light-border dark:border-dark-border/30 bg-light-bg dark:bg-dark-bg p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 text-sm text-light-primary dark:text-dark-primary">
               <DescriptionIcon size={16} />
               <span className="font-medium">
-                {isShowConsolidado
+                {isShowConsolidado || isShowMofRapido
                   ? "Subir archivos"
                   : "Seleccionar Compatibilizaciónes:"}
               </span>
@@ -408,14 +424,16 @@ function MessageInput(
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4  gap-3">
-            {(isShowConsolidado
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {(isShowMofRapido
+              ? formOptions.slice(4, 5)
+              : isShowConsolidado
               ? formOptions.slice(0, 1)
               : typeCompatibilizacion === "facultativa"
               ? formOptions.slice(0, 3)
-              : formOptions
+              : formOptions.slice(0, 4)
             ).map((option) => {
-              const fileCount = mofFiles[option.value]?.length || 0;
+              const fileCount = filesAgent[option.value]?.length || 0;
               return (
                 <button
                   disabled={loaderCompFacultativoFiles}
@@ -461,13 +479,13 @@ function MessageInput(
                     Cancelar
                   </button>
                   <button
-                    onClick={handleCompatibilizacionSend}
+                    onClick={handleGenerateResponseAgent}
                     disabled={
                       loaderCompFacultativoFiles ||
-                      Object.values(mofFiles).every((arr) => arr.length === 0)
+                      Object.values(filesAgent).every((arr) => arr.length === 0)
                     }
                     className={`px-4 py-2 text-sm rounded-lg transition-all ${
-                      Object.values(mofFiles).some((arr) => arr.length > 0) &&
+                      Object.values(filesAgent).some((arr) => arr.length > 0) &&
                       !loaderCompFacultativoFiles
                         ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md"
                         : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
@@ -488,7 +506,7 @@ function MessageInput(
 
             <div className="p-4 space-y-4">
               {formOptions.map((option) => {
-                const formFiles = mofFiles[option.value] || [];
+                const formFiles = filesAgent[option.value] || [];
                 if (formFiles.length === 0) return null;
 
                 return (
@@ -572,7 +590,7 @@ function MessageInput(
   }
 
   return (
-    <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
+    <div className="space-y-4 flex flex-col w-full mx-auto max-w-3xl">
       {files.length > 0 && (
         <div className="flex flex-wrap gap-3">
           {files.map((fileObj) => (
@@ -622,7 +640,7 @@ function MessageInput(
       <div className="relative">
         <div
           {...getRootProps()}
-          className={`relative border-4 rounded-3xl shadow-sm transition-all duration-200 ${
+          className={`relative border-2 rounded-3xl shadow-sm transition-all duration-200 ${
             isDragActive || isDragOver
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
               : "border-light-border dark:border-dark-border/30 bg-light-bg dark:bg-dark-bg"
@@ -752,6 +770,41 @@ function MessageInput(
                               </p>
                             </div>
                           </button>
+                        </>
+                      ) : selectedAgent === "mof" ? (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={handleShowMofRapido}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                MOF rápido
+                              </p>
+                            </div>
+                          </button>{" "}
                         </>
                       ) : (
                         <>
