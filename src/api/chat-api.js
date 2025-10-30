@@ -2,9 +2,11 @@ import { apiClient } from "./axios";
 
 class ChatService {
 
-  async createChat() {
+  async createChat(initialContext) {
     try {
-      const response = await apiClient.post(`/chats`);
+      const response = await apiClient.post(`/chats`, {
+        initialContext,
+      });
 
       return response.data;
     } catch (error) {

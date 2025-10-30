@@ -37,6 +37,7 @@ function ChatView() {
   const [selectedForm, setSelectedForm] = useState("form1");
   const [files, setFiles] = useState([]);
   const [changeAgentLoader, setChangeAgentLoader] = useState(false);
+
   useEffect(() => {
     localStorage.setItem("selectedAgentId", selectedAgent);
   }, [selectedAgent]);
@@ -164,16 +165,14 @@ function ChatView() {
   const handleAgentChange = async (agentId) => {
     try {
       setChangeAgentLoader(true);
-      const data = await chatService.createChat();
-      setAllChats((prev) => [data, ...prev]);
-      //console.log("data agent change", data);
-      setActiveChatId(data._id);
-      await chatService.updateContext(data._id, agentId);
-      navigate(`/chat/${data._id}`);
+      const data = await chatService.getHistorialChatsByContext(agentId);
+      console.log("data agent change", data);
+      setAllChats(data);
+      navigate(`/chat/${data[0]._id}`, { replace: true });
       setSelectedAgent(agentId);
-      //fetchChats();
-      // alert("success", "agente cambiado exitosamente");
+      setActiveChatId(data[0]._id);
     } catch (err) {
+      console.log("error agent change", err);
       alert(
         "error",
         "ocurrio un error inesperado al cambiar el agente, intente de nuevo"
@@ -182,18 +181,19 @@ function ChatView() {
       setChangeAgentLoader(false);
     }
   };
-  // const handleNewChat = useCallback(async () => {
-  //   try {
-  //     // const data = await chatService.getHistorialChatsByContext("normativas");
-  //     // console.log("data enpoint context chaat", data);
-  //     const data = await chatService.createChat();
-  //     setAllChats((prev) => [data, ...prev]);
-  //     setActiveChatId(data._id);
-  //     navigate(`/chat/${data._id}`);
-  //   } catch (err) {
-  //     setError("No se pudo crear un nuevo chat.");
-  //   }
-  // }, [navigate]);
+
+  const handleNewChat = useCallback(async () => {
+    try {
+      // const data = await chatService.getHistorialChatsByContext("normativas");
+      // console.log("data enpoint context chaat", data);
+      const data = await chatService.createChat(selectedAgent);
+      setAllChats((prev) => [data, ...prev]);
+      setActiveChatId(data._id);
+      navigate(`/chat/${data._id}`);
+    } catch (err) {
+      setError("No se pudo crear un nuevo chat.");
+    }
+  }, [navigate]);
 
   const fetchChats = useCallback(async () => {
     if (!user) {
@@ -212,7 +212,7 @@ function ChatView() {
     } finally {
       setLoading(false);
     }
-  }, [user, navigate /*handleNewChat,*/, selectedAgent]);
+  }, [user, navigate /*handleNewChat,*/]);
 
   useEffect(() => {
     fetchChats();
@@ -226,11 +226,11 @@ function ChatView() {
 
       // Si estamos en el chat que se está eliminando, navegar a otro
       if (window.location.pathname.includes(chatIdToDelete)) {
-        // handleNewChat();
-        handleAgentChange(selectedAgent);
+        handleNewChat();
+        //handleAgentChange(selectedAgent);
       }
     },
-    [allChats, navigate, handleAgentChange]
+    [allChats, navigate /* handleAgentChange*/]
   );
 
   const handleChatUpdated = useCallback(
@@ -352,7 +352,7 @@ function ChatView() {
 
         <SidebarChat
           allChats={allChats}
-          // handleNewChat={handleNewChat}
+          handleNewChat={handleNewChat}
           handleDeleteChat={handleDeleteChat}
           toggleChatSidebar={toggleChatSidebar}
           activeChatId={activeChatId}
@@ -374,18 +374,18 @@ function ChatView() {
                     selectedAgentId={selectedAgentId}
                     onAgentChange={handleAgentChange}
                   /> */}
-                  {/* <button
+                  <button
                     onClick={handleNewChat}
-                    className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                    className="flex items-center shadow-md justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                     aria-label="Nuevo chat"
                   >
                     <EditIcon className="h-6 w-6" />
-                  </button> */}
+                  </button>
                 </div>
 
                 <button
                   onClick={toggleChatSidebar}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                  className="flex items-center shadow-md justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                 >
                   <MenuIcon className="h-6 w-6 " />
                 </button>

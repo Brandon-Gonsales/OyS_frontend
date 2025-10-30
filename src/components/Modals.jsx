@@ -394,7 +394,7 @@ const ChatItem = ({
         role="button"
       >
         <div
-          className={`rounded-lg p-3 transition-all duration-200 ${
+          className={`rounded-lg p-2 transition-all duration-200 ${
             isActive
               ? "bg-light-bg dark:bg-dark-bg text-light-primary dark:text-dark-primary"
               : "text-light-primary hover:bg-light-bg hover:text-light-secondary dark:text-dark-primary dark:hover:bg-dark-bg"
