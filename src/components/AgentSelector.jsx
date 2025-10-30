@@ -25,9 +25,9 @@ const agents = [
     description: "Genera un informe de normativas",
   },
   {
-    id: "MOF",
+    id: "mof",
     name: "MOF",
-    disabled: true,
+    disabled: false,
     icon: PsychologyIcon,
     description: "Genera un informe de MOF",
   },
@@ -100,7 +100,7 @@ export const AgentSelector = ({
                   disabled={type.disabled}
                   key={type.id}
                   onClick={() => handleSelect(type.id)}
-                  className={`w-full px-4 py-3 flex disabled:opacity-50 disabled:cursor-not-allowed items-start gap-3 hover:bg-gray-50 transition-colors duration-150 ${
+                  className={`w-full px-4 py-3 flex disabled:opacity-50 disabled:cursor-not-allowed items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-150 ${
                     isSelected ? "bg-light-border dark:bg-dark-secondary_h" : ""
                   }`}
                 >

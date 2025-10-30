@@ -74,7 +74,7 @@ function MessageInput(
 
   // Resetear MOF files cuando cambie el agente
   useEffect(() => {
-    if (selectedAgent !== "MOF") {
+    if (selectedAgent !== "mof") {
       setMofFiles({
         form1: [],
         form2: [],
@@ -160,61 +160,68 @@ function MessageInput(
       formData.append("chatId", currentChat._id);
 
       // Recorremos los archivos y los añadimos con el nombre que espera el backend
-      Object.entries(mofFiles).forEach(([formType, fileArray]) => {
-        fileArray.forEach((fileObj) => {
-          if (fileObj.file) {
-            let fieldName = "";
-            // --- LÓGICA CONDICIONAL CORREGIDA ---
-            // Primero, comprobamos si estamos en el caso "consolidado"
-            if (typeCompatibilizacion === "consolidado") {
-              // Si es así, el único nombre de campo que nos importa es 'compFile'
-              fieldName = "compFile";
-            } else {
-              // Si no, usamos la lógica anterior para los casos facultativa/administrativa
-              fieldName =
-                formType === "form1"
-                  ? "form1File"
-                  : formType === "form2"
-                  ? "form2File"
-                  : formType === "form3"
-                  ? "form3File"
-                  : formType === "extra"
-                  ? "form4File"
-                  : null; // Usamos null para ignorar campos inesperados como 'extra'
-            }
 
-            // Solo añadimos el archivo si hemos determinado un nombre de campo válido
-            if (fieldName && fileObj.file) {
-              formData.append(fieldName, fileObj.file);
-            }
-          }
-        });
-      });
+      if (selectedAgent === "mof") {
+        //Si el agente seleccionado es igual a MOF entra aqui, podemo llamar algun enpoint con apiCliente.post(mof-proccess)
 
-      // Peticion al endpoint /generar con token incluido
-      let urlComp = "";
-      if (typeCompatibilizacion === "facultativa") {
-        urlComp = "comp-facultativa";
-      } else if (typeCompatibilizacion === "administrativa") {
-        urlComp = "comp-administrativa";
+        /////Tambien si MOF recibira archivos podemos quitar estas condiciones de if y solo usarlo en la parte del else de abajo(obvio quitamos el else, sin condificiones) solo se podria construir la url base del MOF abajo en la linea 202 - 208. y usar en la linea 209 o hacer condicion para llamar otro enpoint.
+        console.log("entre a MOF");
       } else {
-        urlComp = "consolidado";
+        Object.entries(mofFiles).forEach(([formType, fileArray]) => {
+          fileArray.forEach((fileObj) => {
+            if (fileObj.file) {
+              let fieldName = "";
+              // Primero, comprobamos si estamos en el caso "consolidado"
+              if (typeCompatibilizacion === "consolidado") {
+                // Si es así, el único nombre de campo que nos importa es 'compFile'
+                fieldName = "compFile";
+              } else {
+                // Si no, usamos la lógica anterior para los casos facultativa/administrativa
+                fieldName =
+                  formType === "form1"
+                    ? "form1File"
+                    : formType === "form2"
+                    ? "form2File"
+                    : formType === "form3"
+                    ? "form3File"
+                    : formType === "extra"
+                    ? "form4File"
+                    : null; // Usamos null para ignorar campos inesperados como 'extra'
+              }
+
+              // Solo añadimos el archivo si hemos determinado un nombre de campo válido
+              if (fieldName && fileObj.file) {
+                formData.append(fieldName, fileObj.file);
+              }
+            }
+          });
+        });
+
+        // Peticion al endpoint /generar con token incluido
+        let urlComp = "";
+        if (typeCompatibilizacion === "facultativa") {
+          urlComp = "comp-facultativa";
+        } else if (typeCompatibilizacion === "administrativa") {
+          urlComp = "comp-administrativa";
+        } else {
+          urlComp = "consolidado";
+        }
+        const { data: response } = await apiClient.post(
+          `/informes/generar-${urlComp}`,
+          formData
+        );
+
+        console.log("Respuesta del servidor:", response);
+        setCurrentChat(response.updatedChat);
+
+        // Limpieza de estado
+        setMofFiles({
+          form1: [],
+          form2: [],
+          form3: [],
+          extra: [],
+        });
       }
-      const { data: response } = await apiClient.post(
-        `/informes/generar-${urlComp}`,
-        formData
-      );
-
-      console.log("Respuesta del servidor:", response);
-      setCurrentChat(response.updatedChat);
-
-      // Limpieza de estado
-      setMofFiles({
-        form1: [],
-        form2: [],
-        form3: [],
-        extra: [],
-      });
       setShowMofContainer(false);
     } catch (error) {
       console.error("Error al enviar archivos:", error);
