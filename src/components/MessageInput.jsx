@@ -640,10 +640,10 @@ function MessageInput(
       <div className="relative">
         <div
           {...getRootProps()}
-          className={`relative border-2 rounded-3xl shadow-sm transition-all duration-200 ${
+          className={`relative border-4 rounded-3xl shadow-sm transition-all duration-200 ${
             isDragActive || isDragOver
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
-              : "border-light-border dark:border-dark-border/30 bg-light-bg dark:bg-dark-bg"
+              : "border-light-border dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg"
           }`}
         >
           <input {...getInputProps()} />

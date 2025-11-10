@@ -163,16 +163,25 @@ function ChatView() {
   };
 
   const handleAgentChange = async (agentId) => {
+    const updateChatState = (chats) => {
+      setAllChats(chats);
+      setActiveChatId(chats[0]._id);
+      navigate(`/chat/${chats[0]._id}`, { replace: true });
+      setSelectedAgent(agentId);
+    };
+
     try {
       setChangeAgentLoader(true);
       const data = await chatService.getHistorialChatsByContext(agentId);
-      console.log("data agent change", data);
-      setAllChats(data);
-      navigate(`/chat/${data[0]._id}`, { replace: true });
-      setSelectedAgent(agentId);
-      setActiveChatId(data[0]._id);
+
+      if (!data || data.length === 0) {
+        const newChat = await chatService.createChat(agentId);
+        updateChatState([newChat]);
+      } else {
+        updateChatState(data);
+      }
     } catch (err) {
-      console.log("error agent change", err);
+      console.error("Error al cambiar el agente:", err);
       alert(
         "error",
         "ocurrio un error inesperado al cambiar el agente, intente de nuevo"
@@ -184,8 +193,6 @@ function ChatView() {
 
   const handleNewChat = useCallback(async () => {
     try {
-      // const data = await chatService.getHistorialChatsByContext("normativas");
-      // console.log("data enpoint context chaat", data);
       const data = await chatService.createChat(selectedAgent);
       setAllChats((prev) => [data, ...prev]);
       setActiveChatId(data._id);
@@ -264,11 +271,8 @@ function ChatView() {
           : null,
       }));
 
-      // Actualizar el estado files con los nuevos archivos
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
 
-      // OPCIONAL: Si también quieres mantener la funcionalidad
-      // de pasar archivos al MessageInput, déjalo:
       if (messageInputRef.current) {
         messageInputRef.current.addFilesFromGlobal(newFiles);
       }

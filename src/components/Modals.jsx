@@ -210,7 +210,7 @@ const EditChatModal = ({
             <button
               onClick={handleSubmit}
               disabled={!isValid || isLoading}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-light-primary bg-light-secondary hover:bg-light-secondary_h dark:bg-dark-secondary dark:text-dark-primary dark:hover:bg-dark-secondary_h transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-light-bg bg-light-secondary hover:bg-light-secondary_h dark:bg-dark-secondary dark:text-dark-primary dark:hover:bg-dark-secondary_h transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Actualizando..." : "Actualizar"}
             </button>
@@ -406,8 +406,6 @@ const ChatItem = ({
                 {chat.title}
               </h3>
             </div>
-
-            {/* Botón de opciones */}
             <div className="relative opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button
                 onClick={handleOptionsClick}
@@ -430,7 +428,6 @@ const ChatItem = ({
         </div>
       </div>
 
-      {/* Modales */}
       <ModalConfirm
         isOpen={showDeleteModal}
         onClose={() => !isLoading && setShowDeleteModal(false)}
