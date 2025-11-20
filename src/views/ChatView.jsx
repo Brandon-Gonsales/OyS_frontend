@@ -29,6 +29,9 @@ function ChatView() {
   const [selectedAgentId, setSelectedAgentId] = useState(
     "compatibilizacionFacultades"
   );
+  const [selectedAgentIdAnt, setSelectedAgentIdAnt] = useState(
+    "compatibilizacionFacultades"
+  );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [isDragOverGlobal, setIsDragOverGlobal] = useState(false);
   const [globalFiles, setGlobalFiles] = useState([]);
@@ -115,7 +118,7 @@ function ChatView() {
             "/process-document",
             formData
           );
-          //console.log("fileResponse chat normal", fileResponse);
+          console.log("fileResponse chat normal", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -140,7 +143,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        //console.log("data", data);
+        console.log("data otro", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -195,7 +198,7 @@ function ChatView() {
   }, [user, navigate, handleNewChat]);
 
   const handleAgentChange = (agentId) => {
-    setSelectedAgentId(agentId);
+    setSelectedAgentId(agentId); // o context
   };
 
   useEffect(() => {

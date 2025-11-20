@@ -161,7 +161,6 @@ function MessageInput(
         fileArray.forEach((fileObj) => {
           if (fileObj.file) {
             let fieldName = "";
-            // --- LÓGICA CONDICIONAL CORREGIDA ---
             // Primero, comprobamos si estamos en el caso "consolidado"
             if (typeCompatibilizacion === "consolidado") {
               // Si es así, el único nombre de campo que nos importa es 'compFile'
