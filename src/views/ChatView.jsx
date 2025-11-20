@@ -9,10 +9,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ChatSkeleton } from "../components/skeletons/chatSkeleton";
 import { MessageList } from "../components/MessageList";
-import { AgentSelector } from "../components/AgentSelector";
+//import { AgentSelector } from "../components/AgentSelector";
 import { alert } from "../utils/alert";
 import { useDropzone } from "react-dropzone";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { chatService } from "../api/chat-api";
 
 function ChatView() {
   const { chatId } = useParams();
@@ -26,8 +27,8 @@ function ChatView() {
   const [allChats, setAllChats] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selectedAgentId, setSelectedAgentId] = useState(
-    "compatibilizacionFacultades"
+  const [selectedAgent, setSelectedAgent] = useState(
+    localStorage.getItem("selectedAgentId") || "chat"
   );
   const [selectedAgentIdAnt, setSelectedAgentIdAnt] = useState(
     "compatibilizacionFacultades"
@@ -38,6 +39,11 @@ function ChatView() {
   const messageInputRef = useRef(null);
   const [selectedForm, setSelectedForm] = useState("form1");
   const [files, setFiles] = useState([]);
+  const [changeAgentLoader, setChangeAgentLoader] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("selectedAgentId", selectedAgent);
+  }, [selectedAgent]);
 
   const fetchChat = useCallback(async () => {
     if (!chatId) return;
@@ -82,7 +88,7 @@ function ChatView() {
       };
       setCurrentChat(updatedChat);
     }
-    console.log("typeAgent", typeAgent);
+    //console.log("typeAgent", typeAgent);
     try {
       let chatAfterFileUpload = currentChat;
       if (files && files.length > 0) {
@@ -91,7 +97,7 @@ function ChatView() {
             "El contexto activo del chat no está definido. No se puede subir el archivo."
           );
         }
-        if (selectedForm && selectedAgentId === "consolidadoFacultades") {
+        if (selectedForm && selectedAgent === "consolidadoFacultades") {
           const formData = new FormData();
           for (const file of files) {
             formData.append("files", file);
@@ -103,7 +109,7 @@ function ChatView() {
             "/extract-json",
             formData
           );
-          //console.log("fileResponse extract-sjon", fileResponse);
+          console.log("fileResponse extract-sjon", fileResponse);
           chatAfterFileUpload = fileResponse.updatedChat;
           setCurrentChat(chatAfterFileUpload);
           handleChatUpdate(chatAfterFileUpload);
@@ -143,7 +149,7 @@ function ChatView() {
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
         });
-        console.log("data otro", data);
+        console.log("data", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -159,9 +165,38 @@ function ChatView() {
     setSidebarChatCollapsed(!sidebarChatCollapsed);
   };
 
+  const handleAgentChange = async (agentId) => {
+    const updateChatState = (chats) => {
+      setAllChats(chats);
+      setActiveChatId(chats[0]._id);
+      navigate(`/chat/${chats[0]._id}`, { replace: true });
+      setSelectedAgent(agentId);
+    };
+
+    try {
+      setChangeAgentLoader(true);
+      const data = await chatService.getHistorialChatsByContext(agentId);
+
+      if (!data || data.length === 0) {
+        const newChat = await chatService.createChat(agentId);
+        updateChatState([newChat]);
+      } else {
+        updateChatState(data);
+      }
+    } catch (err) {
+      console.error("Error al cambiar el agente:", err);
+      alert(
+        "error",
+        "ocurrio un error inesperado al cambiar el agente, intente de nuevo"
+      );
+    } finally {
+      setChangeAgentLoader(false);
+    }
+  };
+
   const handleNewChat = useCallback(async () => {
     try {
-      const { data } = await apiClient.post("/chats");
+      const data = await chatService.createChat(selectedAgent);
       setAllChats((prev) => [data, ...prev]);
       setActiveChatId(data._id);
       navigate(`/chat/${data._id}`);
@@ -178,28 +213,16 @@ function ChatView() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get("/chats");
+      // const { data } = await apiClient.get("/chats");
+      const data = await chatService.getHistorialChatsByContext(selectedAgent);
+      //console.log("data  view", data);
       setAllChats(data);
-      if (data.length > 0) {
-        if (
-          window.location.pathname === "/" ||
-          window.location.pathname === "/login"
-        ) {
-          navigate(`/chat/${data[0]._id}`, { replace: true });
-        }
-      } else {
-        await handleNewChat();
-      }
     } catch (err) {
       setError("No se pudieron cargar los chats.");
     } finally {
       setLoading(false);
     }
-  }, [user, navigate, handleNewChat]);
-
-  const handleAgentChange = (agentId) => {
-    setSelectedAgentId(agentId); // o context
-  };
+  }, [user, navigate /*handleNewChat,*/]);
 
   useEffect(() => {
     fetchChats();
@@ -214,9 +237,10 @@ function ChatView() {
       // Si estamos en el chat que se está eliminando, navegar a otro
       if (window.location.pathname.includes(chatIdToDelete)) {
         handleNewChat();
+        //handleAgentChange(selectedAgent);
       }
     },
-    [allChats, navigate, handleNewChat]
+    [allChats, navigate /* handleAgentChange*/]
   );
 
   const handleChatUpdated = useCallback(
@@ -250,11 +274,8 @@ function ChatView() {
           : null,
       }));
 
-      // Actualizar el estado files con los nuevos archivos
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
 
-      // OPCIONAL: Si también quieres mantener la funcionalidad
-      // de pasar archivos al MessageInput, déjalo:
       if (messageInputRef.current) {
         messageInputRef.current.addFilesFromGlobal(newFiles);
       }
@@ -291,7 +312,7 @@ function ChatView() {
     try {
       setLoadingSendMessage(true);
       const { data: generateReportResponse } = await apiClient.post(
-        "/chats/generate-report", // <-- CORREGIDO
+        "/chats/generate-report", //
         { chatId: currentChat._id }
       );
       setCurrentChat(generateReportResponse.updatedChat);
@@ -347,6 +368,7 @@ function ChatView() {
           logo={null}
           onChatUpdated={handleChatUpdated}
           onError={handleError}
+          changeAgentLoader={changeAgentLoader}
         />
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Chat Section */}
@@ -355,13 +377,13 @@ function ChatView() {
               {/* Header chat mobile */}
               <div className="flex w-full items-center justify-between bg-light-bg px-4 py-3 dark:bg-dark-bg">
                 <div className="flex items-center gap-2">
-                  <AgentSelector
+                  {/* <AgentSelector
                     selectedAgentId={selectedAgentId}
                     onAgentChange={handleAgentChange}
-                  />
+                  /> */}
                   <button
                     onClick={handleNewChat}
-                    className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                    className="flex items-center shadow-md justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                     aria-label="Nuevo chat"
                   >
                     <EditIcon className="h-6 w-6" />
@@ -370,14 +392,14 @@ function ChatView() {
 
                 <button
                   onClick={toggleChatSidebar}
-                  className="flex items-center justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
+                  className="flex items-center shadow-md justify-center rounded-lg bg-light-two p-1 text-light-primary transition-all duration-200 hover:bg-light-two_d dark:bg-dark-two dark:text-dark-primary dark:hover:bg-dark-two_d hover:bg-light-bg dark:hover:text-dark-bg dark:hover:bg-dark-two_d md:hidden"
                 >
                   <MenuIcon className="h-6 w-6 " />
                 </button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-6 scroll-smooth">
-                <div className="mx-auto max-w-4xl space-y-6">
+                <div className="mx-auto max-w-3xl space-y-6">
                   {currentChat?.messages.length === 0 && (
                     <div className="flex flex-col items-center py-12 text-center md:py-20">
                       <h3 className="mb-3 text-xl font-bold text-light-two md:text-2xl dark:text-dark-primary">
@@ -417,12 +439,14 @@ function ChatView() {
                   // onSendMessage={handleSendMessage}
                   // loading={loadingSendMessage}
                   // error={error}
+                  changeAgentLoader={changeAgentLoader}
                   ref={messageInputRef}
                   onSendMessage={handleSendMessage}
                   loading={loadingSendMessage}
                   error={error}
                   disableGlobalDrop={isGlobalDragActive || isDragOverGlobal}
-                  selectedAgentId={selectedAgentId}
+                  selectedAgent={selectedAgent}
+                  handleAgentChange={handleAgentChange}
                   selectedForm={selectedForm}
                   onChangeSelectedForm={onChangeSelectedForm}
                   onChangeCompatibilizar={handleCompatibilizar}

@@ -16,6 +16,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
 import { apiClient } from "../api/axios";
+import { AgentSelector } from "./AgentSelector";
 
 function MessageInput(
   {
@@ -23,13 +24,15 @@ function MessageInput(
     loading,
     error,
     disableGlobalDrop,
-    selectedAgentId,
+    selectedAgent,
+    handleAgentChange,
     selectedForm,
     onChangeSelectedForm,
     onChangeCompatibilizar,
     currentChat,
     setCurrentChat,
     files,
+    changeAgentLoader,
     setFiles,
   },
   ref
@@ -37,11 +40,12 @@ function MessageInput(
   const [message, setMessage] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [mofFiles, setMofFiles] = useState({
+  const [filesAgent, setFilesAgent] = useState({
     form1: [],
     form2: [],
     form3: [],
     extra: [],
+    mof1: [],
   });
   const [showMofContainer, setShowMofContainer] = useState(false);
   const [showCompatibilizar, setShowCompatibilizar] = useState(false);
@@ -55,6 +59,7 @@ function MessageInput(
   const [loaderCompFacultativoFiles, setLoaderCompFacultativoFiles] =
     useState(false);
   const [typeCompatibilizacion, setTypeCompatibilizacion] = useState("");
+  const [isShowMofRapido, setIsShowMofRapido] = useState(false);
 
   useImperativeHandle(ref, () => ({
     addFilesFromGlobal: (newFiles) => {
@@ -64,23 +69,24 @@ function MessageInput(
 
   // Resetear el form seleccionado cuando cambien las condiciones
   useEffect(() => {
-    if (selectedAgentId !== "compatibilizacion" || files.length === 0) {
+    if (selectedAgent !== "compatibilizacion" || files.length === 0) {
       onChangeSelectedForm("form1");
     }
-  }, [selectedAgentId, files.length, onChangeSelectedForm]);
+  }, [selectedAgent, files.length, onChangeSelectedForm]);
 
   // Resetear MOF files cuando cambie el agente
   useEffect(() => {
-    if (selectedAgentId !== "MOF") {
-      setMofFiles({
+    if (selectedAgent !== "mof") {
+      setFilesAgent({
         form1: [],
         form2: [],
         form3: [],
         extra: [],
+        mof1: [],
       });
       setShowMofContainer(false);
     }
-  }, [selectedAgentId]);
+  }, [selectedAgent]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -101,7 +107,7 @@ function MessageInput(
         if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
       });
       // Cleanup MOF files previews
-      Object.values(mofFiles)
+      Object.values(filesAgent)
         .flat()
         .forEach((fileObj) => {
           if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
@@ -128,14 +134,14 @@ function MessageInput(
     onDragLeave: () => setIsDragOver(false),
     onDropAccepted: () => setIsDragOver(false),
     onDropRejected: () => setIsDragOver(false),
-    disabled: disableGlobalDrop || selectedAgentId === "MOF",
+    disabled: disableGlobalDrop || selectedAgent === "MOF",
   });
 
   const handleSend = () => {
     if (!message.trim() && files.length === 0) return;
     const filesToSend = files.map((fileObj) => fileObj.file);
 
-    onSendMessage(message.trim(), filesToSend, selectedAgentId);
+    onSendMessage(message.trim(), filesToSend, selectedAgent);
 
     setMessage("");
     setFiles([]);
@@ -145,8 +151,8 @@ function MessageInput(
     }
   };
 
-  const handleCompatibilizacionSend = async () => {
-    const hasFiles = Object.values(mofFiles).some(
+  const handleGenerateResponseAgent = async () => {
+    const hasFiles = Object.values(filesAgent).some(
       (fileArray) => fileArray.length > 0
     );
     if (!hasFiles) return;
@@ -157,26 +163,31 @@ function MessageInput(
       formData.append("chatId", currentChat._id);
 
       // Recorremos los archivos y los añadimos con el nombre que espera el backend
-      Object.entries(mofFiles).forEach(([formType, fileArray]) => {
+      Object.entries(filesAgent).forEach(([formType, fileArray]) => {
         fileArray.forEach((fileObj) => {
           if (fileObj.file) {
             let fieldName = "";
-            // Primero, comprobamos si estamos en el caso "consolidado"
-            if (typeCompatibilizacion === "consolidado") {
-              // Si es así, el único nombre de campo que nos importa es 'compFile'
-              fieldName = "compFile";
+
+            if (selectedAgent === "mof") {
+              fieldName = "form1File";
             } else {
-              // Si no, usamos la lógica anterior para los casos facultativa/administrativa
-              fieldName =
-                formType === "form1"
-                  ? "form1File"
-                  : formType === "form2"
-                  ? "form2File"
-                  : formType === "form3"
-                  ? "form3File"
-                  : formType === "extra"
-                  ? "form4File"
-                  : null; // Usamos null para ignorar campos inesperados como 'extra'
+              // Primero, comprobamos si estamos en el caso "consolidado"
+              if (typeCompatibilizacion === "consolidado") {
+                // Si es así, el único nombre de campo que nos importa es 'compFile'
+                fieldName = "compFile";
+              } else {
+                // Si no, usamos la lógica anterior para los casos facultativa/administrativa
+                fieldName =
+                  formType === "form1"
+                    ? "form1File"
+                    : formType === "form2"
+                    ? "form2File"
+                    : formType === "form3"
+                    ? "form3File"
+                    : formType === "extra"
+                    ? "form4File"
+                    : null; // Usamos null para ignorar campos inesperados como 'extra'
+              }
             }
 
             // Solo añadimos el archivo si hemos determinado un nombre de campo válido
@@ -189,12 +200,16 @@ function MessageInput(
 
       // Peticion al endpoint /generar con token incluido
       let urlComp = "";
-      if (typeCompatibilizacion === "facultativa") {
-        urlComp = "comp-facultativa";
-      } else if (typeCompatibilizacion === "administrativa") {
-        urlComp = "comp-administrativa";
+      if (selectedAgent === "mof") {
+        urlComp = "mof-rapido";
       } else {
-        urlComp = "consolidado";
+        if (typeCompatibilizacion === "facultativa") {
+          urlComp = "comp-facultativa";
+        } else if (typeCompatibilizacion === "administrativa") {
+          urlComp = "comp-administrativa";
+        } else {
+          urlComp = "consolidado";
+        }
       }
       const { data: response } = await apiClient.post(
         `/informes/generar-${urlComp}`,
@@ -205,12 +220,14 @@ function MessageInput(
       setCurrentChat(response.updatedChat);
 
       // Limpieza de estado
-      setMofFiles({
+      setFilesAgent({
         form1: [],
         form2: [],
         form3: [],
         extra: [],
+        mof1: [],
       });
+
       setShowMofContainer(false);
     } catch (error) {
       console.error("Error al enviar archivos:", error);
@@ -221,19 +238,21 @@ function MessageInput(
   };
 
   const handleMofCancel = () => {
+    setIsShowMofRapido(false);
     setIsShowConsolidado(false);
     handleShowCompatibilizacion();
-    Object.values(mofFiles)
+    Object.values(filesAgent)
       .flat()
       .forEach((fileObj) => {
         if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
       });
 
-    setMofFiles({
+    setFilesAgent({
       form1: [],
       form2: [],
       form3: [],
       extra: [],
+      mof1: [],
     });
     setShowMofContainer(false);
     if (window.changeSelectedAgent) {
@@ -252,7 +271,7 @@ function MessageInput(
   };
 
   const removeMofFile = (formType, fileId) => {
-    setMofFiles((prev) => {
+    setFilesAgent((prev) => {
       const updatedForm = prev[formType].filter((f) => {
         if (f.id === fileId) {
           if (f.preview) URL.revokeObjectURL(f.preview);
@@ -291,7 +310,7 @@ function MessageInput(
           : null,
       }));
 
-      setMofFiles((prev) => ({
+      setFilesAgent((prev) => ({
         ...prev,
         [selectedMofForm]: [...prev[selectedMofForm], ...newFiles],
       }));
@@ -346,7 +365,7 @@ function MessageInput(
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height =
-        Math.min(textareaRef.current.scrollHeight, 120) + "px";
+        Math.min(textareaRef.current.scrollHeight, 420) + "px";
     }
   };
 
@@ -361,28 +380,36 @@ function MessageInput(
     setIsShowConsolidado(!isShowConsolidado);
   };
 
+  const handleShowMofRapido = () => {
+    setIsShowMofRapido(!isShowMofRapido);
+  };
+
   const showFormSelector =
-    selectedAgentId === "compatibilizacion" && files.length > 0;
+    selectedAgent === "compatibilizacion" && files.length > 0;
   const formOptions = [
     { value: "form1", label: "Form 1" },
     { value: "form2", label: "Form 2" },
     { value: "form3", label: "Form 3" },
     { value: "extra", label: "Extra" },
+    { value: "mof1", label: "Form 1" },
   ];
 
   const handleCompatibilizar = () => {
     onChangeCompatibilizar();
   };
 
-  if (showCompatibilizar && selectedAgentId === "compatibilizacion") {
+  if (
+    (showCompatibilizar || isShowMofRapido) &&
+    (selectedAgent === "compatibilizacion" || selectedAgent === "mof")
+  ) {
     return (
-      <div className="relative flex flex-col w-full mx-auto max-w-4xl">
-        <div className="bg-light-bg_h dark:bg-dark-bg_h rounded-lg border border-light-border dark:border-dark-border/30 p-6">
+      <div className="relative flex flex-col w-full mx-auto max-w-3xl">
+        <div className="rounded-3xl border-2 border-light-border dark:border-dark-border/30 bg-light-bg dark:bg-dark-bg p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 text-sm text-light-primary dark:text-dark-primary">
               <DescriptionIcon size={16} />
               <span className="font-medium">
-                {isShowConsolidado
+                {isShowConsolidado || isShowMofRapido
                   ? "Subir archivos"
                   : "Seleccionar Compatibilizaciónes:"}
               </span>
@@ -397,14 +424,16 @@ function MessageInput(
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4  gap-3">
-            {(isShowConsolidado
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {(isShowMofRapido
+              ? formOptions.slice(4, 5)
+              : isShowConsolidado
               ? formOptions.slice(0, 1)
               : typeCompatibilizacion === "facultativa"
               ? formOptions.slice(0, 3)
-              : formOptions
+              : formOptions.slice(0, 4)
             ).map((option) => {
-              const fileCount = mofFiles[option.value]?.length || 0;
+              const fileCount = filesAgent[option.value]?.length || 0;
               return (
                 <button
                   disabled={loaderCompFacultativoFiles}
@@ -450,13 +479,13 @@ function MessageInput(
                     Cancelar
                   </button>
                   <button
-                    onClick={handleCompatibilizacionSend}
+                    onClick={handleGenerateResponseAgent}
                     disabled={
                       loaderCompFacultativoFiles ||
-                      Object.values(mofFiles).every((arr) => arr.length === 0)
+                      Object.values(filesAgent).every((arr) => arr.length === 0)
                     }
                     className={`px-4 py-2 text-sm rounded-lg transition-all ${
-                      Object.values(mofFiles).some((arr) => arr.length > 0) &&
+                      Object.values(filesAgent).some((arr) => arr.length > 0) &&
                       !loaderCompFacultativoFiles
                         ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md"
                         : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
@@ -477,7 +506,7 @@ function MessageInput(
 
             <div className="p-4 space-y-4">
               {formOptions.map((option) => {
-                const formFiles = mofFiles[option.value] || [];
+                const formFiles = filesAgent[option.value] || [];
                 if (formFiles.length === 0) return null;
 
                 return (
@@ -561,7 +590,7 @@ function MessageInput(
   }
 
   return (
-    <div className="space-y-4 flex flex-col w-full mx-auto max-w-4xl">
+    <div className="space-y-4 flex flex-col w-full mx-auto max-w-3xl">
       {files.length > 0 && (
         <div className="flex flex-wrap gap-3">
           {files.map((fileObj) => (
@@ -611,10 +640,10 @@ function MessageInput(
       <div className="relative">
         <div
           {...getRootProps()}
-          className={`relative border rounded-2xl transition-all duration-200 ${
+          className={`relative border-4 rounded-3xl shadow-sm transition-all duration-200 ${
             isDragActive || isDragOver
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
-              : "border-gray-300 dark:border-gray-600 bg-light-bg dark:bg-dark-bg"
+              : "border-light-border dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg"
           }`}
         >
           <input {...getInputProps()} />
@@ -631,124 +660,7 @@ function MessageInput(
             </div>
           )}
 
-          <div className="flex items-end p-3 gap-3">
-            <div className="relative" ref={optionsRef}>
-              <button
-                onClick={() => setShowOptions(!showOptions)}
-                disabled={selectedAgentId === "normativas"}
-                className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  showOptions
-                    ? "bg-light-secondary text-light-bg dark:text-dark-primary shadow-md"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <div
-                  className={`transform transition-transform duration-200  ${
-                    showOptions ? "rotate-45" : ""
-                  }`}
-                >
-                  <AddIcon />
-                </div>
-              </button>
-
-              {showOptions && (
-                <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
-                  {selectedAgentId === "compatibilizacion" ? (
-                    <>
-                      <button
-                        onClick={handleFileSelect}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <Upload
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Subir archivo
-                          </p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          handleShowCompatibilizacion("facultativa")
-                        }
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Facultativo
-                          </p>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleShowCompatibilizacion("administrativa")
-                        }
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Administrativo
-                          </p>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleShowConsolidado("consolidado")}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <DescriptionIcon
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Consolidado
-                          </p>
-                        </div>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={handleFileSelect}
-                        className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                          <Upload
-                            size={14}
-                            className="text-light-primary dark:text-dark-primary"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
-                            Subir archivo
-                          </p>
-                        </div>
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
+          <div className="flex flex-col p-3 gap-3">
             <div className="flex-1">
               <textarea
                 ref={textareaRef}
@@ -762,25 +674,184 @@ function MessageInput(
                 onKeyDown={handleKeyDown}
                 disabled={loading}
                 rows="1"
-                style={{ minHeight: "24px", maxHeight: "120px" }}
+                style={{ minHeight: "24px", maxHeight: "420px" }}
               />
             </div>
+            <div className="flex justify-between">
+              <div className="flex items-center gap-2">
+                <div className="relative" ref={optionsRef}>
+                  <button
+                    onClick={() => setShowOptions(!showOptions)}
+                    disabled={selectedAgent === "normativas"}
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center shadow-md justify-center transition-all duration-200 ${
+                      showOptions
+                        ? "bg-light-secondary text-light-bg dark:text-dark-primary"
+                        : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-light-primary dark:text-dark-primary"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <div
+                      className={`transform transition-transform duration-200  ${
+                        showOptions ? "rotate-45" : ""
+                      }`}
+                    >
+                      <AddIcon />
+                    </div>
+                  </button>
 
-            <button
-              onClick={handleSend}
-              disabled={loading || (!message.trim() && files.length === 0)}
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                (message.trim() || files.length > 0) && !loading
-                  ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
-              ) : (
-                <SendIcon />
-              )}
-            </button>
+                  {showOptions && (
+                    <div className="absolute bottom-full left-0 mb-4 bg-light-bg_h dark:bg-dark-bg rounded-lg shadow-lg border border-light-border/30 dark:border-dark-border/30 overflow-hidden min-w-[200px] z-30">
+                      {selectedAgent === "compatibilizacion" ? (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleShowCompatibilizacion("facultativa")
+                            }
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Facultativo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleShowCompatibilizacion("administrativa")
+                            }
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Administrativo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => handleShowConsolidado("consolidado")}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Consolidado
+                              </p>
+                            </div>
+                          </button>
+                        </>
+                      ) : selectedAgent === "mof" ? (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                          <button
+                            onClick={handleShowMofRapido}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <DescriptionIcon
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                MOF rápido
+                              </p>
+                            </div>
+                          </button>{" "}
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleFileSelect}
+                            className="w-full px-3 py-2.5 text-left hover:bg-light-bg dark:hover:bg-dark-bg flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                          >
+                            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                              <Upload
+                                size={14}
+                                className="text-light-primary dark:text-dark-primary"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light-primary dark:text-dark-primary">
+                                Subir archivo
+                              </p>
+                            </div>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <AgentSelector
+                  loaderCompFacultativoFiles={loaderCompFacultativoFiles}
+                  changeAgentLoader={changeAgentLoader}
+                  selectAgent={selectedAgent}
+                  onSelect={handleAgentChange}
+                />
+              </div>
+              <button
+                onClick={handleSend}
+                disabled={loading || (!message.trim() && files.length === 0)}
+                className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center shadow-md justify-center transition-all duration-200 ${
+                  (message.trim() || files.length > 0) && !loading
+                    ? "bg-light-secondary hover:bg-light-secondary_h text-white shadow-md hover:shadow-lg transform hover:scale-105"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                ) : (
+                  <SendIcon />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
