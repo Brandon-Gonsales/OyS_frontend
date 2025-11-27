@@ -17,6 +17,10 @@ import {
 } from "@mui/icons-material";
 import { userService } from "../api/user.service";
 import UserSkeleton from "../components/skeletons/UserSkeleton"; // Import UserSkeleton
+import UserProfile from "../components/UserProfile";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import useAppTheme from "../hooks/useAppTheme";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -39,6 +43,9 @@ const UsersPage = () => {
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { theme, darkMode, toggleDarkMode } = useAppTheme();
 
   useEffect(() => {
     loadUsers();
@@ -179,9 +186,22 @@ const UsersPage = () => {
     });
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-dvh bg-light-bg dark:bg-dark-bg">
-      {/* Notification */}
+      <div className="flex flex-col items-center fixed top-5 right-5 z-50">
+        <UserProfile
+          userName={user.name}
+          onLogout={handleLogout}
+          toggleDarkMode={toggleDarkMode}
+          isDarkMode={darkMode}
+          dropdownPosition="bottom-left"
+        />
+      </div>
       {notification && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top duration-300">
           <div
