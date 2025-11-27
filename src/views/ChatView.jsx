@@ -30,6 +30,9 @@ function ChatView() {
   const [selectedAgent, setSelectedAgent] = useState(
     localStorage.getItem("selectedAgentId") || "chat"
   );
+  const [selectedAgentIdAnt, setSelectedAgentIdAnt] = useState(
+    "compatibilizacionFacultades"
+  );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [isDragOverGlobal, setIsDragOverGlobal] = useState(false);
   const [globalFiles, setGlobalFiles] = useState([]);
