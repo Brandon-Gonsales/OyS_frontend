@@ -9,6 +9,7 @@ import AppLogic from './AppLogic';
 import LoginPage from './views/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import UsersPage from './views/UsersPage';
+import DocumentsPage from './views/DocumentsPage';
 
 function App() {
   const { theme, darkMode, toggleDarkMode } = useAppTheme();
@@ -18,7 +19,7 @@ function App() {
       {/* <CssBaseline /> */}
       <AuthProvider>
         <Routes>
-          {/* <Route path="/documents" element={<DocumentsPage />} /> */}
+          <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/users" element={<UsersPage />} />
