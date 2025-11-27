@@ -8,6 +8,8 @@ import useAppTheme from './hooks/useAppTheme';
 import AppLogic from './AppLogic';
 import LoginPage from './views/LoginPage';
 import RegisterPage from './views/RegisterPage';
+import UsersPage from './views/UsersPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const { theme, darkMode, toggleDarkMode } = useAppTheme();
@@ -15,16 +17,18 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       {/* <CssBaseline /> */}
-      < AuthProvider >
+      <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/users" element={<UsersPage />} />
+          </Route>
           <Route
             path="/*"
             element={<AppLogic darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
           />
         </Routes>
-      </ AuthProvider >
+      </AuthProvider>
     </ThemeProvider>
   );
 }
