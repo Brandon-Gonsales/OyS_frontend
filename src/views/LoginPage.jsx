@@ -138,7 +138,7 @@ const LoginPage = () => {
             </button>
           </form>
           {/* Register link */}
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-light-primary dark:text-dark-primary">
               ¿No tienes una cuenta?{" "}
               <button
@@ -149,7 +149,7 @@ const LoginPage = () => {
                 Regístrate aquí
               </button>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
