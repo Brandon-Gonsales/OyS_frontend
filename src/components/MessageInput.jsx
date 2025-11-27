@@ -15,6 +15,7 @@ import SendIcon from "@mui/icons-material/Send";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Check, FileUpload, Upload } from "@mui/icons-material";
 import OfflineBoltIcon from "@mui/icons-material/OfflineBolt";
+import { Switch, FormControlLabel } from "@mui/material";
 import { apiClient } from "../api/axios";
 import { AgentSelector } from "./AgentSelector";
 
@@ -34,6 +35,8 @@ function MessageInput(
     files,
     changeAgentLoader,
     setFiles,
+    useGlobalContext,
+    setUseGlobalContext,
   },
   ref
 ) {
@@ -152,6 +155,7 @@ function MessageInput(
   };
 
   const handleGenerateResponseAgent = async () => {
+    console.log("handleGenerateResponseAgent");
     const hasFiles = Object.values(filesAgent).some(
       (fileArray) => fileArray.length > 0
     );
@@ -638,11 +642,34 @@ function MessageInput(
         </div>
       )}
       <div className="relative">
+        {selectedAgent === "chat" && (
+          <div className="flex justify-end mb-2 px-2">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={!useGlobalContext}
+                  onChange={(e) => setUseGlobalContext(!e.target.checked)}
+                  color="warning"
+                  size="small"
+                />
+              }
+              label={
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  {!useGlobalContext
+                    ? "Contexto global activo"
+                    : "Usar contexto global"}
+                </span>
+              }
+            />
+          </div>
+        )}
         <div
           {...getRootProps()}
-          className={`relative border-4 rounded-3xl shadow-md transition-all duration-200 ${
+          className={`relative border-4 rounded-3xl shadow-md transition-all duration-300 ease-in-out ${
             isDragActive || isDragOver
-              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-[1.01]"
+              : !useGlobalContext && selectedAgent === "chat"
+              ? "border-orange-400 dark:border-orange-500 bg-orange-50/50 dark:bg-orange-900/10 shadow-[0_0_20px_rgba(251,146,60,0.3)] animate-pulse"
               : "border-light-border dark:border-dark-border/20 bg-light-bg dark:bg-dark-bg"
           }`}
         >

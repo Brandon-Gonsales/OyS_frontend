@@ -40,6 +40,7 @@ function ChatView() {
   const [selectedForm, setSelectedForm] = useState("form1");
   const [files, setFiles] = useState([]);
   const [changeAgentLoader, setChangeAgentLoader] = useState(false);
+  const [useGlobalContext, setUseGlobalContext] = useState(true);
 
   useEffect(() => {
     localStorage.setItem("selectedAgentId", selectedAgent);
@@ -70,6 +71,9 @@ function ChatView() {
   };
 
   const handleSendMessage = async (userText, files, typeAgent) => {
+    console.log("userText", userText);
+    console.log("files", files);
+    console.log("typeAgent", typeAgent);
     if (!currentChat || (!userText.trim() && (!files || files.length === 0)))
       return;
     setLoadingSendMessage(true);
@@ -131,7 +135,7 @@ function ChatView() {
         }
       }
       if (userText.trim()) {
-        // console.log("userText", userText);
+        console.log("userText", "enteeeeeee");
         const historyForApi = [
           ...chatAfterFileUpload.messages,
           { sender: "user", text: userText },
@@ -139,17 +143,18 @@ function ChatView() {
           role: msg.sender === "user" ? "user" : "model",
           parts: [{ text: msg.text }],
         }));
-
+        console.log("useGlobalContext", useGlobalContext);
         const isNormativas = typeAgent === "normativas";
         const endpoint = isNormativas ? "/chat-normativas" : "/chat";
         const client = isNormativas ? apiClient2 : apiClient;
-
+        console.log("endpoint", endpoint);
         const { data } = await client.post(endpoint, {
           conversationHistory: historyForApi,
           documentId: chatAfterFileUpload.documentId,
           chatId: chatAfterFileUpload._id,
+          useGlobalContext: useGlobalContext,
         });
-        console.log("data", data);
+        console.log("datregghrehea", data);
         setCurrentChat(data.updatedChat);
         handleChatUpdate(data.updatedChat);
       }
@@ -454,6 +459,8 @@ function ChatView() {
                   setCurrentChat={setCurrentChat}
                   files={files}
                   setFiles={setFiles}
+                  useGlobalContext={useGlobalContext}
+                  setUseGlobalContext={setUseGlobalContext}
                 />
               </div>
             </div>

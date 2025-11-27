@@ -18,6 +18,7 @@ function App() {
       {/* <CssBaseline /> */}
       <AuthProvider>
         <Routes>
+          {/* <Route path="/documents" element={<DocumentsPage />} /> */}
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/users" element={<UsersPage />} />
