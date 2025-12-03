@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { chatService } from "../services/chat-service";
+import { chatService } from "../services/chat.service";
 import { alert } from "../utils/alert";
 
 const ModalConfirm = ({

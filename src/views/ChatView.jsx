@@ -145,7 +145,7 @@ function ChatView() {
         }));
         console.log("useGlobalContext", useGlobalContext);
         const isNormativas = typeAgent === "normativas";
-        const endpoint = isNormativas ? "/chat-normativas" : "/chat";
+        const endpoint = isNormativas ? "/chat-normativas" : "/chat-general";
         const client = isNormativas ? apiClient2 : apiClient;
         console.log("endpoint", endpoint);
         const { data } = await client.post(endpoint, {
