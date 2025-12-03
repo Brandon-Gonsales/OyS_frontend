@@ -14,6 +14,7 @@ import {
   PersonOutline,
   Error,
   CheckCircle,
+  ArrowRight,
 } from "@mui/icons-material";
 import { userService } from "../api/user.service";
 import UserSkeleton from "../components/skeletons/UserSkeleton"; // Import UserSkeleton
@@ -195,7 +196,7 @@ const UsersPage = () => {
     <div className="min-h-dvh bg-light-bg dark:bg-dark-bg">
       <div className="flex flex-col items-center fixed top-5 right-5 z-50">
         <UserProfile
-          userName={user.name}
+          userName={user?.name}
           onLogout={handleLogout}
           toggleDarkMode={toggleDarkMode}
           isDarkMode={darkMode}
@@ -247,13 +248,22 @@ const UsersPage = () => {
               className="w-full pl-10 pr-4 py-3 border border-light-border dark:border-dark-border/20 bg-transparent rounded-xl text-light-primary dark:text-dark-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border transition-colors"
             />
           </div>
-          <button
-            onClick={() => handleOpenModal("create")}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-light-secondary dark:bg-dark-secondary text-white rounded-xl hover:bg-light-secondary_h dark:hover:bg-dark-secondary_h transition-all duration-200 hover:scale-105 active:scale-95"
-          >
-            <Add />
-            <span className="font-medium">Nuevo Usuario</span>
-          </button>
+          <div className="flex gap-4 items-center justify-end">
+            <button
+              onClick={() => navigate("/documents")}
+              className="flex items-center justify-center gap-2 px-6 py-3  text-light-primary dark:text-dark-primary rounded-xl border border-light-secondary dark:border-dark-secondary transition-all duration-200 hover:scale-105 active:scale-95"
+            >
+              <ArrowRight />
+              <span className="font-medium">Ir a documentos</span>
+            </button>
+            <button
+              onClick={() => handleOpenModal("create")}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-light-secondary dark:bg-dark-secondary text-white rounded-xl hover:bg-light-secondary_h dark:hover:bg-dark-secondary_h transition-all duration-200 hover:scale-105 active:scale-95"
+            >
+              <Add />
+              <span className="font-medium">Nuevo Usuario</span>
+            </button>
+          </div>
         </div>
 
         <div className="hidden md:block rounded-2xl shadow-xl border border-light-border dark:border-dark-border/20 overflow-x-auto">
